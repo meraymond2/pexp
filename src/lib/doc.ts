@@ -1,4 +1,4 @@
-export type Document = null
+export type Document = Text | NL | Concat | Align | Flatten
 
 let id = 0
 
