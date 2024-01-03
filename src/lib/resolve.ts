@@ -17,10 +17,10 @@ const resolveText = (doc: Text, col: number, indent: number, w: number, cf: Cost
   // is greater than W, the result is a Tainted Set.
   if (col + len > w || indent > w) {
     // Do I care about the actual cost if it's tainted?
-    const dummyCost = null
+    const dummyCost = Infinity
     return TaintedSet(measureText(doc, col, dummyCost))
   } else {
-    const cost = costText(doc, cf)
+    const cost = costText(doc, col, cf)
     return ValidSet([measureText(doc, col, cost)])
   }
 }
