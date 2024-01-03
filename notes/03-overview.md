@@ -20,3 +20,24 @@ General documents support have one more expression, the (arbitrary) Choice opera
 - The general doc container Choices _widens_ to a finite set of choiceless docs. 
 
 ## 3.2 Cost Factory
+The cost factory provides a way of comparing layouts.
+
+It comprises 
+1. a fn `text(col, len)` that computes the cost of text of a given length at a given column.
+2. a constant `newline` that gives the cost of a line break.
+3. an addition fn
+4. a comparison fn
+
+It sounds a bit like Yelland, I think the main difference is that you provide a function, not a set of constants, so you can things like soft margins without complicating the core.
+
+They give some examples of possibly ways of doing it. I like the example that uses the square of the overflow, so long overflows cost more than a series of short overflows.
+
+## 3.3 W, the Computation Width Limit
+This is the final input to PIe. 
+
+This sounds like the cost factory, but isn't the same as the margin.
+
+If I understand this correctly, it's a coarse upper margin. Layouts that exceed it are automatically discarded, if there are other layouts that don't exceed it. 
+
+It sounds related to the cost factory, but I think it's separate because it's used in a separate step. If there are two choices and one exceeds W, it'll be immediately discard. If both are within W, the cost factory gets used to determine which one is optimal.
+- It still sounds a bit like it should be a constant in the cost factory. I'll see if I'm misunderstanding it.
