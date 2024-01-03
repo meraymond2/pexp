@@ -1,4 +1,4 @@
-import { Text } from "./doc"
+import { NL, Text } from "./doc"
 
 export type CostFactory = {
   textFn: (col: number, len: number) => Cost
@@ -13,3 +13,4 @@ export type Cost = number
 export const addCosts = (a: Cost, b: Cost): Cost => a + b
 
 export const costText = (doc: Text, col: number, cf: CostFactory): Cost => cf.textFn(col, doc.s.length)
+export const costNL = (_doc: NL, indent: number, cf: CostFactory): Cost => cf.textFn(0, indent) + cf.nlCost

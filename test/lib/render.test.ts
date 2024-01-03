@@ -6,7 +6,7 @@ describe("rendering", () => {
   it("renders a Text doc correctly", () => {
     const s = "cascat"
     const doc = Text(s)
-    const actual: Layout = render(doc)
+    const actual: Layout = render(doc, 0)
     const expected: Layout = [s]
     expect(actual).toEqual(expected)
   })

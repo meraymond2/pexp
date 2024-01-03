@@ -14,5 +14,5 @@ import { resolve } from "./resolve"
 export const pprint = (document: Document, costFactory: CostFactory, computationWidthLimit: number): Layout => {
   const ms = resolve(document, 0, 0, computationWidthLimit, costFactory)
   const optimal = ms.measures[0].document
-  return render(optimal)
+  return render(optimal, 0)
 }

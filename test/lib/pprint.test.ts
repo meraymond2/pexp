@@ -1,5 +1,5 @@
 import { CostFactory } from "../../src/lib/cost"
-import { Text } from "../../src/lib/doc"
+import { NL, Text } from "../../src/lib/doc"
 import { pprint } from "../../src/lib/printer"
 
 const costFactory: CostFactory = {
@@ -20,5 +20,11 @@ describe("pretty printer", () => {
     const doc = Text(s)
     const actual = pprint(doc, costFactory, w)
     expect(actual).toEqual([s])
+  })
+
+  it("prints a single NL doc correctly", () => {
+    const doc = NL
+    const actual = pprint(doc, costFactory, w)
+    expect(actual).toEqual(["", ""])
   })
 })

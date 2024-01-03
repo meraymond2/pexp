@@ -1,5 +1,5 @@
 import { Cost } from "./cost"
-import { Document, Text } from "./doc"
+import { Document, NL, Text } from "./doc"
 
 export type Measure = {
   cost: Cost
@@ -34,4 +34,10 @@ export const measureText = (doc: Text, col: number, cost: Cost): Measure => ({
   cost,
   document: doc,
   lastLineLength: col + doc.s.length,
+})
+
+export const measureNL = (doc: NL, indent: number, cost: Cost): Measure => ({
+  cost,
+  document: doc,
+  lastLineLength: indent,
 })
