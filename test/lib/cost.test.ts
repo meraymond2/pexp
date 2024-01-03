@@ -20,5 +20,8 @@ describe("cost", () => {
 
     const at78 = costText(doc, 78, costFactory)
     expect(at78).toEqual(4)
+
+    const at85 = costText(doc, 85, costFactory)
+    expect(at85).toEqual(11)
   })
 })
