@@ -1,15 +1,11 @@
 {
-  "name": "code-fmt",
+  "name": "pexp",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
     "build": "esbuild src/index.ts --outdir=out --platform=node --bundle",
     "start": "npm run build && node out/index.js",
     "test": "jest"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.5",
