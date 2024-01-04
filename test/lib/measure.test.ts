@@ -1,5 +1,5 @@
-import { Text } from "../../src/lib/doc"
-import { CostFactory, Measure, measureText } from "../../src/lib/measure"
+import { NL, Text } from "../../src/lib/doc"
+import { CostFactory, Measure, measureNL, measureText } from "../../src/lib/measure"
 
 const costFactory: CostFactory = {
   textFn: (col, len) => {
@@ -28,6 +28,25 @@ describe("measure", () => {
       document: doc,
       cost: 0,
       lastLineLength: 26,
+    })
+  })
+})
+
+describe("newline", () => {
+  it("calculates the newline of NL", () => {
+    const doc = NL
+    const at0: Measure = measureNL(doc, 0, costFactory)
+    expect(at0).toEqual({
+      document: doc,
+      cost: 3,
+      lastLineLength: 0,
+    })
+
+    const at20: Measure = measureNL(doc, 20, costFactory)
+    expect(at20).toEqual({
+      document: doc,
+      cost: 3,
+      lastLineLength: 20,
     })
   })
 })

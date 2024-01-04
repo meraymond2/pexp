@@ -1,4 +1,4 @@
-import { Text } from "../../src/lib/doc"
+import { NL, Text } from "../../src/lib/doc"
 import { CostFactory } from "../../src/lib/measure"
 import { resolve } from "../../src/lib/resolve"
 
@@ -50,6 +50,72 @@ describe("resolve", () => {
           document: doc,
           cost: 126,
           lastLineLength: 206,
+        },
+      ],
+      tainted: true,
+    })
+  })
+})
+
+
+describe("resolve", () => {
+  it("resolves NL docs correctly", () => {
+    const doc = NL
+    const at0 = resolve(doc, 0, 0, w, costFactory)
+    expect(at0).toEqual({
+      measures: [
+        {
+          document: doc,
+          cost: 3,
+          lastLineLength: 0,
+        },
+      ],
+      tainted: false,
+    })
+
+    const at78 = resolve(doc, 78, 0, w, costFactory)
+    expect(at78).toEqual({
+      measures: [
+        {
+          document: doc,
+          cost: 3,
+          lastLineLength: 0,
+        },
+      ],
+      tainted: false,
+    })
+
+    const at78WithIndent = resolve(doc, 78, 4, w, costFactory)
+    expect(at78WithIndent).toEqual({
+      measures: [
+        {
+          document: doc,
+          cost: 3,
+          lastLineLength: 4,
+        },
+      ],
+      tainted: false,
+    })
+
+    const at200 = resolve(doc, 200, 0, w, costFactory)
+    expect(at200).toEqual({
+      measures: [
+        {
+          document: doc,
+          cost: 3,
+          lastLineLength: 0,
+        },
+      ],
+      tainted: true,
+    })
+
+    const at200Indent = resolve(doc, 0, 200, w, costFactory)
+    expect(at200Indent).toEqual({
+      measures: [
+        {
+          document: doc,
+          cost: 123,
+          lastLineLength: 200,
         },
       ],
       tainted: true,

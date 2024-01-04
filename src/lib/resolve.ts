@@ -26,8 +26,8 @@ const resolveText = (doc: Text, col: number, indent: number, w: number, cf: Cost
 
 const resolveNL = (doc: NL, col: number, indent: number, w: number, cf: CostFactory) => {
   if (col > w || indent > w) {
-    return TaintedSet(measureNL(doc, col, cf))
+    return TaintedSet(measureNL(doc, indent, cf))
   } else {
-    return ValidSet([measureNL(doc, col, cf)])
+    return ValidSet([measureNL(doc, indent, cf)])
   }
 }
