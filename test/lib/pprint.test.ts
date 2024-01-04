@@ -1,4 +1,4 @@
-import { NL, Text } from "../../src/lib/doc"
+import { Concat, NL, Text } from "../../src/lib/doc"
 import { CostFactory } from "../../src/lib/measure"
 import { pprint } from "../../src/lib/printer"
 
@@ -27,5 +27,11 @@ describe("pretty printer", () => {
     const doc = NL
     const actual = pprint(doc, costFactory, w)
     expect(actual).toEqual(["", ""])
+  })
+
+  it("prints a Concat doc correctly", () => {
+    const doc = Concat(Text("cas"), Text("cat"))
+    const actual = pprint(doc, costFactory, w)
+    expect(actual).toEqual(["cascat"])
   })
 })

@@ -1,4 +1,4 @@
-import { NL, Text } from "../../src/lib/doc"
+import { Concat, NL, Text } from "../../src/lib/doc"
 import { Layout } from "../../src/lib/layout"
 import { render } from "../../src/lib/render"
 
@@ -15,6 +15,13 @@ describe("rendering", () => {
     const doc = NL
     const actual: Layout = render(doc, 0)
     const expected: Layout = ["", ""]
+    expect(actual).toEqual(expected)
+  })
+
+  it("renders a Concat doc correctly", () => {
+    const doc = Concat(Text("cas"), Text("cat"))
+    const actual: Layout = render(doc, 0)
+    const expected: Layout = ["cascat"]
     expect(actual).toEqual(expected)
   })
 })

@@ -1,5 +1,5 @@
-import { NL, Text } from "../../src/lib/doc"
-import { CostFactory, Measure, measureNL, measureText } from "../../src/lib/measure"
+import { Concat, NL, Text } from "../../src/lib/doc"
+import { CostFactory, Measure, measureConcat, measureNL, measureText } from "../../src/lib/measure"
 
 const costFactory: CostFactory = {
   textFn: (col, len) => {
@@ -33,7 +33,7 @@ describe("measure", () => {
 })
 
 describe("newline", () => {
-  it("calculates the newline of NL", () => {
+  it("calculates the measure of NL", () => {
     const doc = NL
     const at0: Measure = measureNL(doc, 0, costFactory)
     expect(at0).toEqual({
@@ -47,6 +47,18 @@ describe("newline", () => {
       document: doc,
       cost: 3,
       lastLineLength: 20,
+    })
+  })
+})
+
+describe("concat", () => {
+  it("calculates the measure of Cocnat", () => {
+    const doc = Concat(Text("cas"), Text("cas"))
+    const at0 = measureConcat(doc, 0, 0, costFactory)
+    expect(at0).toEqual({
+      document: doc,
+      cost: 0,
+      lastLineLength: 6,
     })
   })
 })

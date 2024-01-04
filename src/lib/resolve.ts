@@ -1,5 +1,17 @@
-import { Document, NL, Text } from "./doc"
-import { CostFactory, MeasureSet, TaintedSet, ValidSet, measureNL, measureText } from "./measure"
+import { Concat, Document, NL, Text } from "./doc"
+import {
+  CostFactory,
+  Measure,
+  MeasureSet,
+  TaintedSet,
+  ValidSet,
+  dedup,
+  measureNL,
+  measureText,
+  merge,
+  unionMeasureSet,
+  taint,
+} from "./measure"
 
 export const resolve = (doc: Document, col: number, indent: number, w: number, cf: CostFactory): MeasureSet => {
   switch (doc._tag) {
@@ -7,6 +19,8 @@ export const resolve = (doc: Document, col: number, indent: number, w: number, c
       return resolveText(doc, col, indent, w, cf)
     case "new-line":
       return resolveNL(doc, col, indent, w, cf)
+    case "concat":
+      return resolveConcat(doc, col, indent, w, cf)
     default:
       throw Error("todo " + doc._tag)
   }
@@ -24,10 +38,33 @@ const resolveText = (doc: Text, col: number, indent: number, w: number, cf: Cost
   }
 }
 
-const resolveNL = (doc: NL, col: number, indent: number, w: number, cf: CostFactory) => {
+const resolveNL = (doc: NL, col: number, indent: number, w: number, cf: CostFactory): MeasureSet => {
   if (col > w || indent > w) {
     return TaintedSet(measureNL(doc, indent, cf))
   } else {
     return ValidSet([measureNL(doc, indent, cf)])
+  }
+}
+
+const resolveConcat = (doc: Concat, col: number, indent: number, w: number, cf: CostFactory): MeasureSet => {
+  const ra = resolve(doc.a, col, indent, w, cf)
+  if (ra.tainted) {
+    const ma = ra.measures[0]
+    const rb = resolve(doc.b, ma.lastLineLength, indent, w, cf)
+    const rb2 = taint(rb)
+    const mb = rb2.measures[0]
+    return TaintedSet(merge(ma, mb))
+  } else {
+    const ss = ra.measures.map((man) => {
+      // RSC(mn, docB, indent) =>
+      const rb = resolve(doc.b, man.lastLineLength, indent, w, cf)
+      if (rb.tainted) {
+        const mb = rb.measures[0]
+        return TaintedSet(merge(man, mb))
+      } else {
+        return ValidSet(dedup(rb.measures.map((mbn) => merge(man, mbn))))
+      }
+    })
+    return ss.reduce((acc, s) => unionMeasureSet(acc, s))
   }
 }

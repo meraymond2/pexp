@@ -1,0 +1,1 @@
+1. I had asked about whether I needed to calculate the cost for Tainted measures. I forgot that they mention that that m is a promise<measure>, so maybe that's how they avoid calculating it, since you only need it if it's actually going to get returned. I should fix that.

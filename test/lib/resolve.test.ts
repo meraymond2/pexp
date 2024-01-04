@@ -1,4 +1,4 @@
-import { NL, Text } from "../../src/lib/doc"
+import { Concat, NL, Text } from "../../src/lib/doc"
 import { CostFactory } from "../../src/lib/measure"
 import { resolve } from "../../src/lib/resolve"
 
@@ -56,7 +56,6 @@ describe("resolve", () => {
     })
   })
 })
-
 
 describe("resolve", () => {
   it("resolves NL docs correctly", () => {
@@ -119,6 +118,24 @@ describe("resolve", () => {
         },
       ],
       tainted: true,
+    })
+  })
+})
+
+describe("resolve", () => {
+  it("resolves Concat docs correctly", () => {
+    const doc = Concat(Text("cas"), Text("cat"))
+    const at0 = resolve(doc, 0, 0, w, costFactory)
+    const actualId = at0.measures[0].document.id
+    expect(at0).toEqual({
+      measures: [
+        {
+          document: { ...doc, id: actualId },
+          cost: 0,
+          lastLineLength: 6,
+        },
+      ],
+      tainted: false,
     })
   })
 })
