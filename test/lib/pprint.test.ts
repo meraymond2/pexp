@@ -1,5 +1,5 @@
-import { CostFactory } from "../../src/lib/cost"
 import { NL, Text } from "../../src/lib/doc"
+import { CostFactory } from "../../src/lib/measure"
 import { pprint } from "../../src/lib/printer"
 
 const costFactory: CostFactory = {
@@ -10,6 +10,7 @@ const costFactory: CostFactory = {
     return endPos - margin
   },
   nlCost: 3,
+  addCosts: (a, b) => a + b,
 }
 
 const w = 150

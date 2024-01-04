@@ -1,6 +1,6 @@
-import { CostFactory } from "./cost"
 import { Document } from "./doc"
 import { Layout } from "./layout"
+import { CostFactory } from "./measure"
 import { render } from "./render"
 import { resolve } from "./resolve"
 

@@ -1,5 +1,5 @@
-import { CostFactory } from "../../src/lib/cost"
 import { Text } from "../../src/lib/doc"
+import { CostFactory } from "../../src/lib/measure"
 import { resolve } from "../../src/lib/resolve"
 
 const costFactory: CostFactory = {
@@ -10,6 +10,7 @@ const costFactory: CostFactory = {
     return endPos - margin
   },
   nlCost: 3,
+  addCosts: (a, b) => a + b,
 }
 
 const w = 150
@@ -47,7 +48,7 @@ describe("resolve", () => {
       measures: [
         {
           document: doc,
-          cost: Infinity,
+          cost: 126,
           lastLineLength: 206,
         },
       ],

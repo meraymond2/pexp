@@ -1,5 +1,17 @@
-import { Cost } from "./cost"
 import { Document, NL, Text } from "./doc"
+
+/**
+ * The printer is agnostic as to the type of Cost, but for now, for
+ * simplicity, I am hard-coding it to a number just so I don't have
+ * to parameterise a load of types.
+ */
+export type Cost = number
+
+export type CostFactory = {
+  textFn: (col: number, len: number) => Cost
+  nlCost: Cost
+  addCosts: (a: Cost, b: Cost) => Cost
+}
 
 export type Measure = {
   cost: Cost
@@ -30,14 +42,14 @@ export const TaintedSet = (m: Measure): MeasureSet => ({
   tainted: true,
 })
 
-export const measureText = (doc: Text, col: number, cost: Cost): Measure => ({
-  cost,
+export const measureText = (doc: Text, col: number, costFactory: CostFactory): Measure => ({
+  cost: costFactory.textFn(col, doc.s.length),
   document: doc,
   lastLineLength: col + doc.s.length,
 })
 
-export const measureNL = (doc: NL, indent: number, cost: Cost): Measure => ({
-  cost,
+export const measureNL = (doc: NL, indent: number, costFactory: CostFactory): Measure => ({
+  cost: costFactory.textFn(0, indent) + costFactory.nlCost,
   document: doc,
   lastLineLength: indent,
 })

@@ -1,12 +1,11 @@
-import { Cost, CostFactory, costNL, costText } from "./cost"
 import { Document, NL, Text } from "./doc"
-import { Measure, MeasureSet, TaintedSet, ValidSet, measureNL, measureText } from "./measure"
+import { CostFactory, MeasureSet, TaintedSet, ValidSet, measureNL, measureText } from "./measure"
 
 export const resolve = (doc: Document, col: number, indent: number, w: number, cf: CostFactory): MeasureSet => {
   switch (doc._tag) {
     case "text":
       return resolveText(doc, col, indent, w, cf)
-      case "new-line":
+    case "new-line":
       return resolveNL(doc, col, indent, w, cf)
     default:
       throw Error("todo " + doc._tag)
@@ -19,20 +18,16 @@ const resolveText = (doc: Text, col: number, indent: number, w: number, cf: Cost
   // is greater than W, the result is a Tainted Set.
   if (col + len > w || indent > w) {
     // Do I care about the actual cost if it's tainted?
-    const dummyCost = Infinity
-    return TaintedSet(measureText(doc, col, dummyCost))
+    return TaintedSet(measureText(doc, col, cf))
   } else {
-    const cost = costText(doc, col, cf)
-    return ValidSet([measureText(doc, col, cost)])
+    return ValidSet([measureText(doc, col, cf)])
   }
 }
 
 const resolveNL = (doc: NL, col: number, indent: number, w: number, cf: CostFactory) => {
   if (col > w || indent > w) {
-    const dummyCost = Infinity
-    return TaintedSet(measureNL(doc, col, dummyCost))
+    return TaintedSet(measureNL(doc, col, cf))
   } else {
-    const cost = costNL(doc, col, cf)
-    return ValidSet([measureNL(doc, col, cost)])
+    return ValidSet([measureNL(doc, col, cf)])
   }
 }
