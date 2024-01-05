@@ -152,3 +152,8 @@ export const measureConcat = (doc: Concat, col: number, indent: number, costFact
     lastLineLength: mb.lastLineLength,
   }
 }
+
+export const measureNest = (doc: Nest, col: number, indent: number, costFactory: CostFactory): Measure => {
+  const m = measure(doc.doc, col, indent + doc.n, costFactory)
+  return adjustNest(doc.n, m)
+}
