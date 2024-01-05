@@ -1,4 +1,4 @@
-import { Concat, Document, NL, Text } from "./doc"
+import { Concat, Document, NL, Nest, Text } from "./doc"
 
 /**
  * The printer is agnostic as to the type of Cost, but for now, for
@@ -53,6 +53,17 @@ export const dedup = (ms: Measure[]): Measure[] => {
   const tail = dedup(ms.slice(1))
   return head.concat(tail)
 }
+
+export const adjustNest = (n: number, m: Measure): Measure => ({
+  cost: m.cost,
+  lastLineLength: m.lastLineLength,
+  document: Nest(n, m.document),
+})
+
+export const lift = (ms: MeasureSet, f: (m: Measure) => Measure): MeasureSet => ({
+  ...ms,
+  measures: ms.measures.map(f),
+})
 
 export const unionMeasureSet = (a: MeasureSet, b: MeasureSet): MeasureSet => {
   if (b.tainted) return a

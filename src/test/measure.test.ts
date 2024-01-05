@@ -1,5 +1,5 @@
 import { Concat, NL, Text } from "../lib/doc"
-import { CostFactory, Measure, measureConcat, measureNL, measureText } from "../lib/measure"
+import { CostFactory, Measure, MeasureSet, adjustNest, lift, measureConcat, measureNL, measureText } from "../lib/measure"
 
 const costFactory: CostFactory = {
   textFn: (col, len) => {
@@ -60,5 +60,28 @@ describe("concat", () => {
       cost: 0,
       lastLineLength: 6,
     })
+  })
+})
+
+describe("lift", () => {
+  const d1 = Text("cas")
+  const d2 = Text("cat")
+  test("lift valid", () => {
+    const valid: MeasureSet = {
+      measures: [
+        { cost: 10, document: d1, lastLineLength: 7 },
+        { cost: 0, document: d2, lastLineLength: 10 },
+      ],
+      tainted: false,
+    }
+    const actual = lift(valid, (m) => ({ ...m, cost: m.cost * 2 }))
+    const expected: MeasureSet = {
+      measures: [
+        { cost: 20, document: d1, lastLineLength: 7 },
+        { cost: 0, document: d2, lastLineLength: 10 },
+      ],
+      tainted: false,
+    }
+    expect(actual).toEqual(expected)
   })
 })

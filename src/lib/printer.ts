@@ -11,8 +11,8 @@ import { resolve } from "./resolve"
  * 3. render
  */
 
-export const pprint = (document: Document, costFactory: CostFactory, computationWidthLimit: number): Layout => {
-  const ms = resolve(document, 0, 0, computationWidthLimit, costFactory)
+export const pprint = (doc: Document, costFactory: CostFactory, W: number): Layout => {
+  const ms = resolve(doc, 0, 0, W, costFactory)
   const optimal = ms.measures[0].document
   return render(optimal, 0)
 }

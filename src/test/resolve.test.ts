@@ -1,7 +1,7 @@
-import { Concat, NL, Text } from "../lib/doc"
-import { CostFactory } from "../lib/measure"
+import { Concat, NL, Nest, Text } from "../lib/doc"
+import { CostFactory, MeasureSet } from "../lib/measure"
 import { resolve } from "../lib/resolve"
-import { W, costFactory } from "./helpers"
+import { W, costFactory, stripIds, stripIdsMSet } from "./helpers"
 
 describe("resolve Text", () => {
   const s = "cascat"
@@ -135,5 +135,23 @@ describe("resolve Concat", () => {
       ],
       tainted: false,
     })
+  })
+})
+
+describe("resolve Nest", () => {
+  test("resolve Nest(Text) at col 0", () => {
+    const doc = Nest(1, Text("lunabee"))
+    const actual = resolve(doc, 0, 0, W, costFactory)
+    const expected: MeasureSet = {
+      measures: [
+        {
+          cost: 0,
+          document: doc,
+          lastLineLength: 7,
+        },
+      ],
+      tainted: false,
+    }
+    expect(stripIdsMSet(actual)).toEqual(stripIdsMSet(expected))
   })
 })
