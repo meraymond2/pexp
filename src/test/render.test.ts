@@ -2,23 +2,27 @@ import { Concat, NL, Nest, Text } from "../lib/doc"
 import { Layout } from "../lib/layout"
 import { render } from "../lib/render"
 
-describe("rendering", () => {
-  it("renders a Text doc correctly", () => {
+describe("render Text", () => {
+  test("render Text(s)", () => {
     const s = "cascat"
     const doc = Text(s)
     const actual: Layout = render(doc, 0)
     const expected: Layout = [s]
     expect(actual).toEqual(expected)
   })
+})
 
-  it("renders a NL doc correctly", () => {
+describe("render NL", () => {
+  test("render NL", () => {
     const doc = NL
     const actual: Layout = render(doc, 0)
     const expected: Layout = ["", ""]
     expect(actual).toEqual(expected)
   })
+})
 
-  it("renders a Concat doc correctly", () => {
+describe("render Concat", () => {
+  test("render Concat(Text, Text)", () => {
     const doc = Concat(Text("cas"), Text("cat"))
     const actual: Layout = render(doc, 0)
     const expected: Layout = ["cascat"]

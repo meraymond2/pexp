@@ -1,25 +1,13 @@
 import { Concat, NL, Text } from "../lib/doc"
 import { CostFactory } from "../lib/measure"
 import { resolve } from "../lib/resolve"
+import { W, costFactory } from "./helpers"
 
-const costFactory: CostFactory = {
-  textFn: (col, len) => {
-    const margin = 80
-    const endPos = col + len
-    if (endPos < margin) return 0
-    return endPos - margin
-  },
-  nlCost: 3,
-  addCosts: (a, b) => a + b,
-}
-
-const w = 150
-
-describe("resolve", () => {
-  it("resolves Text docs correctly", () => {
-    const s = "cascat"
-    const doc = Text(s)
-    const at0 = resolve(doc, 0, 0, w, costFactory)
+describe("resolve Text", () => {
+  const s = "cascat"
+  const doc = Text(s)
+  test("resolve Text at 0", () => {
+    const at0 = resolve(doc, 0, 0, W, costFactory)
     expect(at0).toEqual({
       measures: [
         {
@@ -30,8 +18,10 @@ describe("resolve", () => {
       ],
       tainted: false,
     })
+  })
 
-    const at78 = resolve(doc, 78, 0, w, costFactory)
+  test("resolve Text at 78", () => {
+    const at78 = resolve(doc, 78, 0, W, costFactory)
     expect(at78).toEqual({
       measures: [
         {
@@ -42,8 +32,10 @@ describe("resolve", () => {
       ],
       tainted: false,
     })
+  })
 
-    const at200 = resolve(doc, 200, 0, w, costFactory)
+  test("resolve Text at 200", () => {
+    const at200 = resolve(doc, 200, 0, W, costFactory)
     expect(at200).toEqual({
       measures: [
         {
@@ -57,10 +49,10 @@ describe("resolve", () => {
   })
 })
 
-describe("resolve", () => {
-  it("resolves NL docs correctly", () => {
-    const doc = NL
-    const at0 = resolve(doc, 0, 0, w, costFactory)
+describe("resolve NL", () => {
+  const doc = NL
+  test("resolve NL at 0", () => {
+    const at0 = resolve(doc, 0, 0, W, costFactory)
     expect(at0).toEqual({
       measures: [
         {
@@ -71,8 +63,9 @@ describe("resolve", () => {
       ],
       tainted: false,
     })
-
-    const at78 = resolve(doc, 78, 0, w, costFactory)
+  })
+  test("resolve NL at 78", () => {
+    const at78 = resolve(doc, 78, 0, W, costFactory)
     expect(at78).toEqual({
       measures: [
         {
@@ -83,8 +76,9 @@ describe("resolve", () => {
       ],
       tainted: false,
     })
-
-    const at78WithIndent = resolve(doc, 78, 4, w, costFactory)
+  })
+  test("resolve NL at col 78 with indent", () => {
+    const at78WithIndent = resolve(doc, 78, 4, W, costFactory)
     expect(at78WithIndent).toEqual({
       measures: [
         {
@@ -95,8 +89,10 @@ describe("resolve", () => {
       ],
       tainted: false,
     })
+  })
 
-    const at200 = resolve(doc, 200, 0, w, costFactory)
+  test("resolve NL at col 200 past W", () => {
+    const at200 = resolve(doc, 200, 0, W, costFactory)
     expect(at200).toEqual({
       measures: [
         {
@@ -107,8 +103,10 @@ describe("resolve", () => {
       ],
       tainted: true,
     })
+  })
 
-    const at200Indent = resolve(doc, 0, 200, w, costFactory)
+  test("resolve NL past W at col 0 with 200 indent", () => {
+    const at200Indent = resolve(doc, 0, 200, W, costFactory)
     expect(at200Indent).toEqual({
       measures: [
         {
@@ -122,10 +120,10 @@ describe("resolve", () => {
   })
 })
 
-describe("resolve", () => {
-  it("resolves Concat docs correctly", () => {
+describe("resolve Concat", () => {
+  test("resolve Concat(Text, Text)", () => {
     const doc = Concat(Text("cas"), Text("cat"))
-    const at0 = resolve(doc, 0, 0, w, costFactory)
+    const at0 = resolve(doc, 0, 0, W, costFactory)
     const actualId = at0.measures[0].document.id
     expect(at0).toEqual({
       measures: [
