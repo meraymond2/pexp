@@ -1,7 +1,7 @@
 import { Concat, NL, Nest, Text } from "../lib/doc"
-import { CostFactory, MeasureSet } from "../lib/measure"
+import { CostFactory, Measure, MeasureSet } from "../lib/measure"
 import { resolve } from "../lib/resolve"
-import { W, costFactory, stripIds, stripIdsMSet } from "./helpers"
+import { W, assertValid, costFactory, stripIds, stripIdsMSet } from "./helpers"
 
 describe("resolve Text", () => {
   const s = "cascat"
@@ -36,16 +36,14 @@ describe("resolve Text", () => {
 
   test("resolve Text at 200", () => {
     const at200 = resolve(doc, 200, 0, W, costFactory)
-    expect(at200).toEqual({
-      measures: [
-        {
-          document: doc,
-          cost: 126,
-          lastLineLength: 206,
-        },
-      ],
-      tainted: true,
-    })
+    expect(at200.tainted).toBe(true)
+    if (at200.tainted) {
+      expect(at200.measure()).toEqual({
+        document: doc,
+        cost: 126,
+        lastLineLength: 206,
+      })
+    }
   })
 })
 
@@ -93,37 +91,33 @@ describe("resolve NL", () => {
 
   test("resolve NL at col 200 past W", () => {
     const at200 = resolve(doc, 200, 0, W, costFactory)
-    expect(at200).toEqual({
-      measures: [
-        {
-          document: doc,
-          cost: 3,
-          lastLineLength: 0,
-        },
-      ],
-      tainted: true,
-    })
+    expect(at200.tainted).toBe(true)
+    if (at200.tainted) {
+      expect(at200.measure()).toEqual({
+        document: doc,
+        cost: 3,
+        lastLineLength: 0,
+      })
+    }
   })
 
   test("resolve NL past W at col 0 with 200 indent", () => {
     const at200Indent = resolve(doc, 0, 200, W, costFactory)
-    expect(at200Indent).toEqual({
-      measures: [
-        {
-          document: doc,
-          cost: 123,
-          lastLineLength: 200,
-        },
-      ],
-      tainted: true,
-    })
+    expect(at200Indent.tainted).toBe(true)
+    if (at200Indent.tainted) {
+      expect(at200Indent.measure()).toEqual({
+        document: doc,
+        cost: 123,
+        lastLineLength: 200,
+      })
+    }
   })
 })
 
 describe("resolve Concat", () => {
   test("resolve Concat(Text, Text)", () => {
     const doc = Concat(Text("cas"), Text("cat"))
-    const at0 = resolve(doc, 0, 0, W, costFactory)
+    const at0 = assertValid(resolve(doc, 0, 0, W, costFactory))
     const actualId = at0.measures[0].document.id
     expect(at0).toEqual({
       measures: [

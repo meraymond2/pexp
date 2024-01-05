@@ -1,5 +1,5 @@
 import { Document } from "../lib/doc"
-import { CostFactory, MeasureSet } from "../lib/measure"
+import { CostFactory, MeasureSet, ValidMeasureSet } from "../lib/measure"
 
 export const costFactory: CostFactory = {
   textFn: (col, len) => {
@@ -30,7 +30,21 @@ export const stripIds = (doc: Document): Document => {
   }
 }
 
-export const stripIdsMSet = (ms: MeasureSet): MeasureSet => ({
-  ...ms,
-  measures: ms.measures.map((m) => ({ ...m, document: stripIds(m.document) })),
-})
+export const stripIdsMSet = (ms: MeasureSet): MeasureSet => {
+  if (ms.tainted) {
+    const m = ms.measure()
+    return {
+      tainted: true,
+      measure: () => ({ ...m, document: stripIds(m.document) }),
+    }
+  }
+  return {
+    tainted: false,
+    measures: ms.measures.map((m) => ({ ...m, document: stripIds(m.document) })),
+  }
+}
+
+export const assertValid = (S: MeasureSet): ValidMeasureSet => {
+  if (S.tainted) throw Error("Assertion failed: S tainted")
+  return S
+}

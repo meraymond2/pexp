@@ -24,12 +24,19 @@ export type Measure = {
 //   lastLineLength: l,
 // })
 
-export type MeasureSet = {
+export type MeasureSet = ValidMeasureSet | TaintedMeasureSet
+
+export type ValidMeasureSet = {
   measures: Measure[]
-  tainted: boolean
+  tainted: false
 }
 
-export const ValidSet = (ms: Measure[]): MeasureSet => {
+export type TaintedMeasureSet = {
+  tainted: true
+  measure: () => Measure
+}
+
+export const ValidSet = (ms: Measure[]): ValidMeasureSet => {
   // todo: sort?
   return {
     measures: ms,
@@ -37,8 +44,8 @@ export const ValidSet = (ms: Measure[]): MeasureSet => {
   }
 }
 
-export const TaintedSet = (m: Measure): MeasureSet => ({
-  measures: [m],
+export const TaintedSet = (m: () => Measure): TaintedMeasureSet => ({
+  measure: m,
   tainted: true,
 })
 
@@ -60,10 +67,20 @@ export const adjustNest = (n: number, m: Measure): Measure => ({
   document: Nest(n, m.document),
 })
 
-export const lift = (ms: MeasureSet, f: (m: Measure) => Measure): MeasureSet => ({
-  ...ms,
-  measures: ms.measures.map(f),
-})
+export const lift = (ms: MeasureSet, f: (m: Measure) => Measure): MeasureSet => {
+  switch (ms.tainted) {
+    case true:
+      return {
+        ...ms,
+        measure: () => f(ms.measure()),
+      }
+    case false:
+      return {
+        ...ms,
+        measures: ms.measures.map(f),
+      }
+  }
+}
 
 export const unionMeasureSet = (a: MeasureSet, b: MeasureSet): MeasureSet => {
   if (b.tainted) return a
@@ -87,11 +104,11 @@ const mergeSortMeasures = (as: Measure[], bs: Measure[]): Measure[] => {
   }
 }
 
-export const taint = (s: MeasureSet): MeasureSet =>
+export const taint = (s: MeasureSet): TaintedMeasureSet =>
   s.tainted
     ? s
     : {
-        measures: s.measures.slice(0, 1),
+        measure: () => s.measures[0],
         tainted: true,
       }
 

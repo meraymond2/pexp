@@ -35,8 +35,7 @@ const resolveText = (doc: Text, col: number, indent: number, w: number, cf: Cost
   // If placing the text would exceed W (cost + length) or if the indent
   // is greater than W, the result is a Tainted Set.
   if (col + len > w || indent > w) {
-    // Do I care about the actual cost if it's tainted?
-    return TaintedSet(measureText(doc, col, cf))
+    return TaintedSet(() => measureText(doc, col, cf))
   } else {
     return ValidSet([measureText(doc, col, cf)])
   }
@@ -44,7 +43,7 @@ const resolveText = (doc: Text, col: number, indent: number, w: number, cf: Cost
 
 const resolveNL = (doc: NL, col: number, indent: number, w: number, cf: CostFactory): MeasureSet => {
   if (col > w || indent > w) {
-    return TaintedSet(measureNL(doc, indent, cf))
+    return TaintedSet(() => measureNL(doc, indent, cf))
   } else {
     return ValidSet([measureNL(doc, indent, cf)])
   }
@@ -53,18 +52,18 @@ const resolveNL = (doc: NL, col: number, indent: number, w: number, cf: CostFact
 const resolveConcat = (doc: Concat, col: number, indent: number, w: number, cf: CostFactory): MeasureSet => {
   const ra = resolve(doc.a, col, indent, w, cf)
   if (ra.tainted) {
-    const ma = ra.measures[0]
+    const ma = ra.measure()
     const rb = resolve(doc.b, ma.lastLineLength, indent, w, cf)
     const rb2 = taint(rb)
-    const mb = rb2.measures[0]
-    return TaintedSet(merge(ma, mb))
+    const mb = rb2.measure()
+    return TaintedSet(() => merge(ma, mb))
   } else {
     const ss = ra.measures.map((man) => {
       // RSC(mn, docB, indent) =>
       const rb = resolve(doc.b, man.lastLineLength, indent, w, cf)
       if (rb.tainted) {
-        const mb = rb.measures[0]
-        return TaintedSet(merge(man, mb))
+        const mb = rb.measure()
+        return TaintedSet(() => merge(man, mb))
       } else {
         return ValidSet(dedup(rb.measures.map((mbn) => merge(man, mbn))))
       }
