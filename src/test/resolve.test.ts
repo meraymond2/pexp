@@ -1,6 +1,6 @@
-import { Concat, NL, Text } from "../../src/lib/doc"
-import { CostFactory } from "../../src/lib/measure"
-import { resolve } from "../../src/lib/resolve"
+import { Concat, NL, Text } from "../lib/doc"
+import { CostFactory } from "../lib/measure"
+import { resolve } from "../lib/resolve"
 
 const costFactory: CostFactory = {
   textFn: (col, len) => {

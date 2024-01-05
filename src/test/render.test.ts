@@ -1,6 +1,6 @@
-import { Concat, NL, Text } from "../../src/lib/doc"
-import { Layout } from "../../src/lib/layout"
-import { render } from "../../src/lib/render"
+import { Concat, NL, Nest, Text } from "../lib/doc"
+import { Layout } from "../lib/layout"
+import { render } from "../lib/render"
 
 describe("rendering", () => {
   it("renders a Text doc correctly", () => {
@@ -24,8 +24,22 @@ describe("rendering", () => {
     const expected: Layout = ["cascat"]
     expect(actual).toEqual(expected)
   })
+})
 
-  it("renders a Nest doc", () => {
+describe("render Nest", () => {
+  test("render Nest(Text)", () => {
+    // Slightly counterintuitive, but Nesting text doesn't indent it directly,
+    // because otherwise you couldn't have a line of Text items.
     const doc = Nest(1, Text("lunabee"))
+    const actual: Layout = render(doc, 0)
+    const expected: Layout = ["lunabee"]
+    expect(actual).toEqual(expected)
+  })
+
+  test("render Nest(Concat(NL, Text))", () => {
+    const doc = Nest(1, Concat(NL, Text("lunabee")))
+    const actual = render(doc, 0)
+    const expected: Layout = ["", "  lunabee"]
+    expect(actual).toEqual(expected)
   })
 })

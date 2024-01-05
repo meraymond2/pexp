@@ -1,5 +1,5 @@
-import { Concat, NL, Text } from "../../src/lib/doc"
-import { CostFactory, Measure, measureConcat, measureNL, measureText } from "../../src/lib/measure"
+import { Concat, NL, Text } from "../lib/doc"
+import { CostFactory, Measure, measureConcat, measureNL, measureText } from "../lib/measure"
 
 const costFactory: CostFactory = {
   textFn: (col, len) => {

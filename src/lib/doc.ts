@@ -28,7 +28,7 @@ export type Nest = {
   n: number
   doc: Document
 }
-export const Next = (n: number, doc: Document): Nest => ({
+export const Nest = (n: number, doc: Document): Nest => ({
   _tag: "nest",
   id: id++,
   n,
