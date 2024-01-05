@@ -1,4 +1,4 @@
-export type Document = Text | NL | Concat | Align | Flatten
+export type Document = Text | NL | Concat | Align | Flatten | Nest
 
 let id = 0
 
@@ -21,6 +21,19 @@ export const NL: NL = {
   _tag: "new-line",
   id: id++,
 }
+
+export type Nest = {
+  _tag: "nest"
+  id: number
+  n: number
+  doc: Document
+}
+export const Next = (n: number, doc: Document): Nest => ({
+  _tag: "nest",
+  id: id++,
+  n,
+  doc,
+})
 
 export type Concat = {
   _tag: "concat"

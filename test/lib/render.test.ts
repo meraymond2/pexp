@@ -24,4 +24,8 @@ describe("rendering", () => {
     const expected: Layout = ["cascat"]
     expect(actual).toEqual(expected)
   })
+
+  it("renders a Nest doc", () => {
+    const doc = Nest(1, Text("lunabee"))
+  })
 })
