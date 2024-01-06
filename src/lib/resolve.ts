@@ -34,8 +34,6 @@ export const resolve = (
       return resolveNest(doc, col, indent, w, cf)
     case "align":
       return resolveAlign(doc, col, indent, w, cf)
-    default:
-      throw Error("todo " + doc._tag)
   }
 }
 

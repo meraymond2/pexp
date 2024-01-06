@@ -1,4 +1,4 @@
-export type Document = Text | NL | Concat | Align | Flatten | Nest
+export type Document = Text | NL | Concat | Align  | Nest
 
 let id = 0
 
@@ -59,13 +59,13 @@ export const Align = (d: Document): Align => ({
   d,
 })
 
-export type Flatten = {
-  _tag: "flatten"
-  id: number
-  d: Document
+export const Flatten = (d: Document): Document => {
+  let memo = {}
+
+  // const walk = (doc: Document): Document => {
+  //   switch (doc._tag) {
+  //       case ""
+  //   }
+  // }
+  return Text("todo")
 }
-export const Flatten = (d: Document): Flatten => ({
-  _tag: "flatten",
-  id: id++,
-  d,
-})

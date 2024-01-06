@@ -20,8 +20,6 @@ export const stripIds = (doc: Document): Document => {
       return { ...doc, d: stripIds(doc.d), id: -1 }
     case "concat":
       return { ...doc, a: stripIds(doc.a), b: stripIds(doc.b), id: -1 }
-    case "flatten":
-      return { ...doc, d: stripIds(doc.d), id: -1 }
     case "nest":
       return { ...doc, doc: stripIds(doc.doc), id: -1 }
     case "new-line":

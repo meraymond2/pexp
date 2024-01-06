@@ -140,8 +140,6 @@ const measure = (doc: Document, col: number, indent: number, costFactory: CostFa
       return measureNest(doc, col, indent, costFactory)
     case "align":
       return measureAlign(doc, col, indent, costFactory)
-    default:
-      throw Error("Unimplemented measure: " + doc._tag)
   }
 }
 

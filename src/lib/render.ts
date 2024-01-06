@@ -1,4 +1,4 @@
-import { Align, Concat, Document, Flatten, NL, Nest, Text } from "./doc"
+import { Document } from "./doc"
 import { Layout } from "./layout"
 
 export type PrintCtx = {
@@ -29,7 +29,5 @@ export const render = (doc: Document, ctx: PrintCtx): Layout => {
       return render(doc.doc, { ...ctx, indent: ctx.indent + doc.n })
     case "align":
       return render(doc.d, { ...ctx, indent: ctx.col })
-    case "flatten":
-      return render(doc.d, { ...ctx, flatten: true })
   }
 }
