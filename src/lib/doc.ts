@@ -1,4 +1,4 @@
-export type Document = Text | NL | Concat | Align  | Nest
+export type Document = Text | NL | Concat | Align | Nest
 
 let id = 0
 
@@ -59,13 +59,30 @@ export const Align = (d: Document): Align => ({
   d,
 })
 
-export const Flatten = (d: Document): Document => {
-  let memo = {}
-
-  // const walk = (doc: Document): Document => {
-  //   switch (doc._tag) {
-  //       case ""
-  //   }
-  // }
-  return Text("todo")
+// TODO: this is supposed to be memoised, but a naive cache is likely to be
+// slower than none, so I'm skipping until I have a benchmark that can
+// demonstrate memoisation that's faster.
+export const Flatten = (doc: Document): Document => {
+  switch (doc._tag) {
+    case "align":
+      return {
+        ...doc,
+        d: Flatten(doc.d),
+      }
+    case "concat":
+      return {
+        ...doc,
+        a: Flatten(doc.a),
+        b: Flatten(doc.b),
+      }
+    case "nest":
+      return {
+        ...doc,
+        doc: Flatten(doc.doc),
+      }
+    case "new-line":
+      return Text(" ")
+    case "text":
+      return doc
+  }
 }
