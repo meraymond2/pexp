@@ -5,6 +5,10 @@ const Line = (docs: Document[]): Document => docs.reduce((acc, doc) => Concat(ac
 
 const Group = (doc: Document): Document => Union(doc, Flatten(doc))
 
+// export const WrapBlock = (ls: Document[]): Document => {
+//   // Naive version, nothing clever
+// }
+
 export const layout = (node: Node): Document => {
   switch (node._tag) {
     case "true":
@@ -51,7 +55,7 @@ export const layout = (node: Node): Document => {
           ),
         ),
       )
-      return Line([Text("["), values, NL, Text("]")])
+      return Group(Line([Text("["), values, NL, Text("]")]))
     }
   }
 }

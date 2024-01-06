@@ -1,4 +1,15 @@
-export type Token = LBrace | RBrace | LSquare | RSquare | Comma | Colon | Null | True | False | String | Number
+export type Token =
+  | LBrace
+  | RBrace
+  | LSquare
+  | RSquare
+  | Comma
+  | Colon
+  | Null
+  | True
+  | False
+  | String
+  | Number
 
 type LBrace = { _tag: "{" }
 type RBrace = { _tag: "}" }

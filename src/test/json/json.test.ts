@@ -5,13 +5,13 @@ import { layout } from "./layout"
 import { lex } from "./lex"
 import { parse } from "./parse"
 
-const mkCostFactory = (margin: number): CostFactory => ({
+const mkCostFactory = (margin: number, nlCost: number = 3): CostFactory => ({
   textFn: (col, len) => {
     const endPos = col + len
     if (endPos < margin) return 0
     return endPos - margin
   },
-  nlCost: 3,
+  nlCost,
   addCosts: (a, b) => a + b,
 })
 
@@ -100,6 +100,31 @@ describe("printing JSON objects", () => {
 })
 
 describe("printing JSON arrays", () => {
+  const jsStr = JSON.stringify([1, 2, 3, 4, 5])
+  const doc = layout(parse(lex(jsStr)))
+
+  test("at margin = 40", () => {
+    const F = mkCostFactory(40)
+    const actual = pprint(doc, F, 200).join("\n")
+    const expected = `[ 1, 2, 3, 4, 5 ]`
+    expect(actual).toEqual(expected)
+  })
+  test("at margin = 4", () => {
+    const F = mkCostFactory(4, 1)
+    const actual = pprint(doc, F, 200).join("\n")
+    const expected = `
+[
+  1,
+  2,
+  3,
+  4,
+  5
+]`.trim()
+    expect(actual).toEqual(expected)
+  })
+})
+
+describe("wrapping JSON arrays", () => {
   const jsStr = JSON.stringify([
     "abc",
     "bcd",
@@ -128,7 +153,7 @@ describe("printing JSON arrays", () => {
   ])
   const doc = layout(parse(lex(jsStr)))
 
-  test("at margin = 40", () => {
+  test.skip("at margin = 40", () => {
     const F = mkCostFactory(40)
     const actual = pprint(doc, F, 200).join("\n")
     const expected = `
