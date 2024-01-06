@@ -66,7 +66,7 @@ describe("printing JSON", () => {
     expect(actual).toEqual(expected)
   })
 
-  test("at margin 30", () => {
+  test("at margin 40", () => {
     const F: CostFactory = {
       textFn: (col, len) => {
         const margin = 40
@@ -74,11 +74,10 @@ describe("printing JSON", () => {
         if (endPos < margin) return 0
         return endPos - margin
       },
-      nlCost: 1,
+      nlCost: 3,
       addCosts: (a, b) => a + b,
     }
     const actual = pprint(doc, F, 200).join("\n")
-    writeFileSync("actual.json", actual)
     const expected = `
 {
   "name": "pexp",

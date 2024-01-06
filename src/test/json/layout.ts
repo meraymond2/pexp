@@ -18,30 +18,22 @@ export const layout = (node: Node): Document => {
     case "string":
       return Text(node.value)
     case "object": {
-      const doc = Concat(
-        Group(
-          Nest(
-            1,
-            Line([
-              Text("{"),
-              NL,
-              Group(
-                Line(
-                  node.vals.map(({ key, value }, idx) => {
-                    const kv = Group(Line([Text(key + ": "), layout(value)]))
-                    if (idx < node.vals.length - 1) {
-                      return Concat(kv, Concat(Text(","), NL))
-                    }
-                    return kv
-                  }),
-                ),
-              ),
-            ]),
+      const values = Nest(
+        1,
+        Concat(
+          NL,
+          Line(
+            node.vals.map(({ key, value }, idx) => {
+              const kv = Group(Line([Text(key + ": "), layout(value)]))
+              if (idx < node.vals.length - 1) {
+                return Concat(kv, Concat(Text(","), NL))
+              }
+              return kv
+            }),
           ),
         ),
-        Concat(NL, Text("}")),
       )
-      return doc
+      return Line([Text("{"), values, NL, Text("}")])
     }
     case "array": {
       throw Error("TODO: array")
