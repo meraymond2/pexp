@@ -5,7 +5,17 @@ import { layout } from "./layout"
 import { lex } from "./lex"
 import { parse } from "./parse"
 
-describe("printing JSON", () => {
+const mkCostFactory = (margin: number): CostFactory => ({
+  textFn: (col, len) => {
+    const endPos = col + len
+    if (endPos < margin) return 0
+    return endPos - margin
+  },
+  nlCost: 3,
+  addCosts: (a, b) => a + b,
+})
+
+describe("printing JSON objects", () => {
   const jsStr = JSON.stringify({
     name: "pexp",
     version: "1.0.0",
@@ -30,16 +40,7 @@ describe("printing JSON", () => {
   const doc = layout(parsed)
 
   test("at margin 80", () => {
-    const F: CostFactory = {
-      textFn: (col, len) => {
-        const margin = 80
-        const endPos = col + len
-        if (endPos < margin) return 0
-        return endPos - margin
-      },
-      nlCost: 3,
-      addCosts: (a, b) => a + b,
-    }
+    const F = mkCostFactory(80)
     const actual = pprint(doc, F, 200).join("\n")
     const expected = `
 {
@@ -67,16 +68,7 @@ describe("printing JSON", () => {
   })
 
   test("at margin 40", () => {
-    const F: CostFactory = {
-      textFn: (col, len) => {
-        const margin = 40
-        const endPos = col + len
-        if (endPos < margin) return 0
-        return endPos - margin
-      },
-      nlCost: 3,
-      addCosts: (a, b) => a + b,
-    }
+    const F = mkCostFactory(40)
     const actual = pprint(doc, F, 200).join("\n")
     const expected = `
 {
@@ -103,6 +95,51 @@ describe("printing JSON", () => {
   }
 }
   `.trim()
+    expect(actual).toEqual(expected)
+  })
+})
+
+describe("printing JSON arrays", () => {
+  const jsStr = JSON.stringify([
+    "abc",
+    "bcd",
+    "cde",
+    "def",
+    "efg",
+    "fgh",
+    "ghi",
+    "hij",
+    "ijk",
+    "jkl",
+    "klm",
+    "lmn",
+    "mno",
+    "nop",
+    "opq",
+    "pqr",
+    "qrs",
+    "rst",
+    "stu",
+    "tuv",
+    "uvw",
+    "vwx",
+    "wxy",
+    "xyz",
+  ])
+  const doc = layout(parse(lex(jsStr)))
+
+  test("at margin = 40", () => {
+    const F = mkCostFactory(40)
+    const actual = pprint(doc, F, 200).join("\n")
+    const expected = `
+[
+  'abc', 'bcd', 'cde', 'def', 'efg',
+  'fgh', 'ghi', 'hij', 'ijk', 'jkl',
+  'klm', 'lmn', 'mno', 'nop', 'opq',
+  'pqr', 'qrs', 'rst', 'stu', 'tuv',
+  'uvw', 'vwx', 'wxy', 'xyz'
+]
+`.trim()
     expect(actual).toEqual(expected)
   })
 })

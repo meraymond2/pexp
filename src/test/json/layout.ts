@@ -26,7 +26,7 @@ export const layout = (node: Node): Document => {
             node.vals.map(({ key, value }, idx) => {
               const kv = Group(Line([Text(key + ": "), layout(value)]))
               if (idx < node.vals.length - 1) {
-                return Concat(kv, Concat(Text(","), NL))
+                return Line([kv, Text(","), NL])
               }
               return kv
             }),
@@ -36,7 +36,22 @@ export const layout = (node: Node): Document => {
       return Line([Text("{"), values, NL, Text("}")])
     }
     case "array": {
-      throw Error("TODO: array")
+      const values = Nest(
+        1,
+        Concat(
+          NL,
+          Line(
+            node.vals.map((value, idx) => {
+              const val = layout(value)
+              if (idx < node.vals.length - 1) {
+                return Line([val, Text(","), NL])
+              }
+              return val
+            }),
+          ),
+        ),
+      )
+      return Line([Text("["), values, NL, Text("]")])
     }
   }
 }
