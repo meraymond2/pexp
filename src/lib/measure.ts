@@ -36,13 +36,17 @@ export type TaintedMeasureSet = {
   measure: () => Measure
 }
 
-export const ValidSet = (ms: Measure[]): ValidMeasureSet => {
-  // todo: sort?
-  return {
-    measures: ms,
-    tainted: false,
-  }
-}
+/**
+ * Construct a MeasureSet from an array of Measures. The ctor doesn't need to
+ * enforce sorting, because it's only called on single Measures, or on already
+ * sorted Measure arrays.
+ *
+ * TODO: make this take a single Measure, and have dedup create its own MeasureSet.
+ */
+export const ValidSet = (ms: Measure[]): ValidMeasureSet => ({
+  measures: ms,
+  tainted: false,
+})
 
 export const TaintedSet = (m: () => Measure): TaintedMeasureSet => ({
   measure: m,
@@ -52,6 +56,9 @@ export const TaintedSet = (m: () => Measure): TaintedMeasureSet => ({
 const dominates = (a: Measure, b: Measure): boolean =>
   a.lastLineLength <= b.lastLineLength && a.cost <= b.cost
 
+/**
+ * Takes a sorted array of Measures, and removes duplicates and dominated items.
+ */
 export const dedup = (ms: Measure[]): Measure[] => {
   if (ms.length === 1) return ms
 
@@ -96,6 +103,7 @@ export const unionMeasureSet = (a: MeasureSet, b: MeasureSet): MeasureSet => {
   if (b.tainted) return a
   // Not sure about this one, as the notation is different from the case above.
   if (a.tainted) return b
+  console.log(a, b)
   return {
     measures: mergeSortMeasures(a.measures, b.measures),
     tainted: false,
@@ -103,7 +111,9 @@ export const unionMeasureSet = (a: MeasureSet, b: MeasureSet): MeasureSet => {
 }
 
 const mergeSortMeasures = (as: Measure[], bs: Measure[]): Measure[] => {
-  if (dominates(as[0], bs[0])) {
+  if (as.length === 0) return bs
+  else if (bs.length === 0) return as
+  else if (dominates(as[0], bs[0])) {
     return mergeSortMeasures(as, bs.slice(1))
   } else if (dominates(bs[0], as[0])) {
     return mergeSortMeasures(as.slice(1), bs)
@@ -140,6 +150,9 @@ const measure = (doc: Document, col: number, indent: number, costFactory: CostFa
       return measureNest(doc, col, indent, costFactory)
     case "align":
       return measureAlign(doc, col, indent, costFactory)
+    case "union":
+      // TODO: can I change the type only allow choiceless docs?
+      throw Error("Unreachable: cannot measure Union")
   }
 }
 

@@ -29,5 +29,8 @@ export const render = (doc: Document, ctx: PrintCtx): Layout => {
       return render(doc.doc, { ...ctx, indent: ctx.indent + doc.n })
     case "align":
       return render(doc.d, { ...ctx, indent: ctx.col })
+    case "union":
+      // TODO: can I make render only accept choiceless docs?
+      throw Error("Unreachable: cannot render Union")
   }
 }

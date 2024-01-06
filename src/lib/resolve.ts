@@ -1,4 +1,4 @@
-import { Align, Concat, Document, NL, Nest, Text } from "./doc"
+import { Align, Concat, Document, NL, Nest, Text, Union } from "./doc"
 import { adjustAlign } from "./measure"
 import {
   CostFactory,
@@ -34,6 +34,8 @@ export const resolve = (
       return resolveNest(doc, col, indent, w, cf)
     case "align":
       return resolveAlign(doc, col, indent, w, cf)
+    case "union":
+      return resolveUnion(doc, col, indent, w, cf)
   }
 }
 
@@ -93,6 +95,7 @@ const resolveConcat = (
         return ValidSet(dedup(rb.measures.map((mbn) => merge(man, mbn))))
       }
     })
+    console.log("here, ", ss.length)
     return ss.reduce((acc, s) => unionMeasureSet(acc, s))
   }
 }
@@ -120,4 +123,16 @@ const resolveAlign = (
   }
   const S = resolve(align.d, col, col, W, cf)
   return lift(S, (m) => adjustAlign(indent, m))
+}
+
+const resolveUnion = (
+  union: Union,
+  col: number,
+  indent: number,
+  W: number,
+  F: CostFactory,
+): MeasureSet => {
+  const Sa = resolve(union.a, col, indent, W, F)
+  const Sb = resolve(union.b, col, indent, W, F)
+  return unionMeasureSet(Sa, Sb)
 }

@@ -130,6 +130,31 @@ describe("resolve Concat", () => {
       tainted: false,
     })
   })
+
+  test("combines costs correctly", () => {
+    const s1 = "  "
+    const s2 = "0123456789"
+    const s3 = "9876543210"
+    const doc = Concat(Text(s1), Concat(Text(s2), Text(s3)))
+    const F: CostFactory = {
+      // 1 cost for every char over margin 10
+      textFn: (col, len) => Math.max(col + len - 10, 0),
+      nlCost: 1,
+      addCosts: (a, b) => a + b,
+    }
+    const actual = resolve(doc, 0, 0, 150, F)
+    const expected: MeasureSet = {
+      tainted: false,
+      measures: [
+        {
+          cost: 12,
+          document: doc,
+          lastLineLength: 22,
+        },
+      ],
+    }
+    expect(stripIdsMSet(actual)).toEqual(stripIdsMSet(expected))
+  })
 })
 
 describe("resolve Nest", () => {

@@ -1,4 +1,5 @@
-export type Document = Text | NL | Concat | Align | Nest
+export type ChoicelessDocument = Text | NL | Concat | Align | Nest
+export type Document = ChoicelessDocument | Union
 
 let id = 0
 
@@ -59,6 +60,19 @@ export const Align = (d: Document): Align => ({
   d,
 })
 
+export type Union = {
+  _tag: "union"
+  id: number
+  a: Document
+  b: Document
+}
+export const Union = (a: Document, b: Document): Union => ({
+  _tag: "union",
+  id: id++,
+  a,
+  b,
+})
+
 // TODO: this is supposed to be memoised, but a naive cache is likely to be
 // slower than none, so I'm skipping until I have a benchmark that can
 // demonstrate memoisation that's faster.
@@ -84,5 +98,11 @@ export const Flatten = (doc: Document): Document => {
       return Text(" ")
     case "text":
       return doc
+    case "union":
+      return {
+        ...doc,
+        a: Flatten(doc.a),
+        b: Flatten(doc.b),
+      }
   }
 }
