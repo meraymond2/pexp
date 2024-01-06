@@ -1,4 +1,4 @@
-import { Concat, NL, Nest, Text } from "../lib/doc"
+import { Concat, Flatten, NL, Nest, Text } from "../lib/doc"
 import { Layout } from "../lib/layout"
 import { render } from "../lib/render"
 
@@ -25,6 +25,13 @@ describe("render NL", () => {
     const expected: Layout = ["", ""]
     expect(actual).toEqual(expected)
   })
+
+  test("render NL, flatten = true", () => {
+    const doc = NL
+    const actual: Layout = render(doc, { col: 0, indent: 0, flatten: true })
+    const expected: Layout = [" "]
+    expect(actual).toEqual(expected)
+  })
 })
 
 describe("render Concat", () => {
@@ -32,6 +39,20 @@ describe("render Concat", () => {
     const doc = Concat(Text("cas"), Text("cat"))
     const actual: Layout = render(doc, initialCtx)
     const expected: Layout = ["cascat"]
+    expect(actual).toEqual(expected)
+  })
+
+  test("render Concat(Concat(Text, NL), Text), flatten = false", () => {
+    const doc = Concat(Concat(Text("cas"), NL), Text("cat"))
+    const actual: Layout = render(doc, initialCtx)
+    const expected: Layout = ["cas", "cat"]
+    expect(actual).toEqual(expected)
+  })
+
+  test("render Concat(Concat(Text, NL), Text), flatten = true", () => {
+    const doc = Concat(Concat(Text("cas"), NL), Text("cat"))
+    const actual: Layout = render(doc, { col: 0, indent: 0, flatten: true })
+    const expected: Layout = ["cas cat"]
     expect(actual).toEqual(expected)
   })
 })
@@ -50,6 +71,15 @@ describe("render Nest", () => {
     const doc = Nest(1, Concat(NL, Text("lunabee")))
     const actual = render(doc, initialCtx)
     const expected: Layout = ["", "  lunabee"]
+    expect(actual).toEqual(expected)
+  })
+})
+
+describe("render Flatten", () => {
+  test("render Flatten(Concat(Concat(Text, NL), Text))", () => {
+    const doc = Flatten(Concat(Concat(Text("cas"), NL), Text("cat")))
+    const actual: Layout = render(doc, initialCtx)
+    const expected: Layout = ["cas cat"]
     expect(actual).toEqual(expected)
   })
 })

@@ -12,15 +12,15 @@ export const render = (doc: Document, ctx: PrintCtx): Layout => {
     case "text":
       return renderText(doc)
     case "new-line":
-      return renderNL(doc, ctx)
+      return renderNL(ctx)
     case "concat":
       return renderConcat(doc, ctx)
     case "nest":
       return renderNest(doc, ctx)
     case "align":
       return renderAlign(doc, ctx)
-    default:
-      throw Error("Unimplemented " + doc._tag)
+    case "flatten":
+      return renderFlatten(doc, ctx)
   }
 }
 
@@ -28,8 +28,7 @@ const renderText = (doc: Text): Layout => [doc.s]
 
 const INDENT = "  "
 
-// TODO: flattening
-const renderNL = (_doc: NL, ctx: PrintCtx): Layout => ["", INDENT.repeat(ctx.indent)]
+const renderNL = (ctx: PrintCtx): Layout => (ctx.flatten ? [" "] : ["", INDENT.repeat(ctx.indent)])
 
 const renderConcat = (doc: Concat, ctx: PrintCtx): Layout => {
   const la = render(doc.a, ctx)
