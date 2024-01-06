@@ -2,7 +2,6 @@ import { Align, Concat, Document, NL, Nest, Text, Union } from "./doc"
 import { adjustAlign } from "./measure"
 import {
   CostFactory,
-  Measure,
   MeasureSet,
   TaintedSet,
   ValidSet,
@@ -95,7 +94,6 @@ const resolveConcat = (
         return ValidSet(dedup(rb.measures.map((mbn) => merge(man, mbn))))
       }
     })
-    console.log("here, ", ss.length)
     return ss.reduce((acc, s) => unionMeasureSet(acc, s))
   }
 }

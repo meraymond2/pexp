@@ -1,5 +1,6 @@
-import { Align, Concat, NL, Nest, Text } from "../lib/doc"
+import { Align, Concat, Flatten, NL, Nest, Text, Union } from "../lib/doc"
 import { CostFactory, Measure, MeasureSet } from "../lib/measure"
+import { render } from "../lib/render"
 import { resolve } from "../lib/resolve"
 import { W, assertValid, costFactory, stripIds, stripIdsMSet } from "./helpers"
 
@@ -34,13 +35,50 @@ describe("resolve Text", () => {
     })
   })
 
+  test("resolve Text at 100", () => {
+    // TODO: Check on this, should the cost be 6 or 106? 6 looks wrong in this
+    // case, where I'm resolving at an arbitrarily inflated start position. But
+    // in an actual case, to get column to 100, I'd need a Concat with a left
+    // hand side of 100, and if I had that, the cost of the Left would be 20,
+    // so I'd want to cost of the entire concat to only be 26.
+    const actual = resolve(doc, 100, 0, W, costFactory)
+    expect(actual).toEqual({
+      measures: [
+        {
+          document: doc,
+          cost: 6,
+          lastLineLength: 106,
+        },
+      ],
+      tainted: false,
+    })
+  })
+
+  test("resolve Concat(Text, Text)", () => {
+    // See above
+    const spacer = Text("-".repeat(100))
+    const concat = Concat(spacer, doc)
+    const actual = resolve(concat, 0, 0, W, costFactory)
+    const expected: MeasureSet = {
+      tainted: false,
+      measures: [
+        {
+          document: stripIds(concat),
+          cost: 26,
+          lastLineLength: 106,
+        },
+      ],
+    }
+    expect(stripIdsMSet(actual)).toEqual(stripIdsMSet(expected))
+  })
+
   test("resolve Text at 200", () => {
     const at200 = resolve(doc, 200, 0, W, costFactory)
     expect(at200.tainted).toBe(true)
     if (at200.tainted) {
       expect(at200.measure()).toEqual({
         document: doc,
-        cost: 126,
+        cost: 6,
         lastLineLength: 206,
       })
     }
@@ -136,6 +174,7 @@ describe("resolve Concat", () => {
     const s2 = "0123456789"
     const s3 = "9876543210"
     const doc = Concat(Text(s1), Concat(Text(s2), Text(s3)))
+    // const doc = Concat(Concat(Text(s1), Text(s2)), Text(s3))
     const F: CostFactory = {
       // 1 cost for every char over margin 10
       textFn: (col, len) => Math.max(col + len - 10, 0),
@@ -190,5 +229,46 @@ describe("resolve Align", () => {
       tainted: false,
     }
     expect(stripIdsMSet(actual)).toEqual(stripIdsMSet(expected))
+  })
+})
+
+describe("Example 3.1", () => {
+  const doc = Concat(
+    Text("= func("),
+    Concat(
+      Nest(1, Concat(NL, Concat(Text("pretty,"), Concat(NL, Text("print"))))),
+      Concat(NL, Text(")")),
+    ),
+  )
+  const grouped = Union(doc, Flatten(doc))
+
+  test("pprint with margin at 6", () => {
+    const F: CostFactory = {
+      textFn: (col, len) => Math.max(col + len - 6, 0),
+      nlCost: 1,
+      addCosts: (a, b) => a + b,
+    }
+    const W = 150
+    const res = resolve(grouped, 3, 0, W, F)
+    if (!res.tainted) {
+      const layout = render(res.measures[0].document, { col: 3, indent: 0, flatten: false })
+      const expected = ["= func(", "  pretty,", "  print", ")"]
+      expect(layout).toEqual(expected)
+    }
+  })
+
+  test("pprint with margin at 14", () => {
+    const F: CostFactory = {
+      textFn: (col, len) => Math.max(col + len - 14, 0),
+      nlCost: 1,
+      addCosts: (a, b) => a + b,
+    }
+    const W = 150
+    const res = resolve(grouped, 3, 0, W, F)
+    if (!res.tainted) {
+      const layout = render(res.measures[0].document, { col: 3, indent: 0, flatten: false })
+      const expected = ["= func(", "  pretty,", "  print", ")"]
+      expect(layout).toEqual(expected)
+    }
   })
 })

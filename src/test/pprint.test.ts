@@ -35,38 +35,3 @@ describe("pretty printer", () => {
     expect(actual).toEqual(["cascat"])
   })
 })
-
-describe("Example 3.1", () => {
-  const doc = Concat(
-    Text("= func("),
-    Concat(
-      Nest(1, Concat(NL, Concat(Text("pretty,"), Concat(NL, Text("print"))))),
-      Concat(NL, Text(")")),
-    ),
-  )
-  const grouped = Union(doc, Flatten(doc))
-
-  test("pprint with margin at 6", () => {
-    const F: CostFactory = {
-      textFn: (col, len) => Math.max(col + len - 6, 0),
-      nlCost: 1,
-      addCosts: (a, b) => a + b,
-    }
-    const W = 150
-    const actual = pprint(grouped, F, W)
-    const expected = ["= func(", "  pretty,", "  print", ")"]
-    expect(actual).toEqual(expected)
-  })
-
-  test("pprint with margin at 14", () => {
-    const F: CostFactory = {
-      textFn: (col, len) => Math.max(col + len - 14, 0),
-      nlCost: 1,
-      addCosts: (a, b) => a + b,
-    }
-    const W = 150
-    const actual = pprint(grouped, F, W)
-    const expected = ["= func( pretty, print )"]
-    expect(actual).toEqual(expected)
-  })
-})

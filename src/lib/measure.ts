@@ -103,7 +103,6 @@ export const unionMeasureSet = (a: MeasureSet, b: MeasureSet): MeasureSet => {
   if (b.tainted) return a
   // Not sure about this one, as the notation is different from the case above.
   if (a.tainted) return b
-  console.log(a, b)
   return {
     measures: mergeSortMeasures(a.measures, b.measures),
     tainted: false,
@@ -157,7 +156,8 @@ const measure = (doc: Document, col: number, indent: number, costFactory: CostFa
 }
 
 export const measureText = (doc: Text, col: number, costFactory: CostFactory): Measure => ({
-  cost: costFactory.textFn(col, doc.s.length),
+  // TODO: check on this, the min is here to not double-count Concat costs.
+  cost: Math.min(costFactory.textFn(col, doc.s.length), doc.s.length),
   document: doc,
   lastLineLength: col + doc.s.length,
 })
