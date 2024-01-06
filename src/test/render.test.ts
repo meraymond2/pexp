@@ -83,3 +83,16 @@ describe("render Flatten", () => {
     expect(actual).toEqual(expected)
   })
 })
+
+describe("render Example 3.1", () => {
+  const doc = Concat(
+    Text("= func("),
+    Concat(
+      Nest(1, Concat(NL, Concat(Text("pretty,"), Concat(NL, Text("print"))))),
+      Concat(NL, Text(")")),
+    ),
+  )
+  const actual = render(doc, { col: 3, indent: 0, flatten: false })
+  const expected = ["= func(", "  pretty,", "  print", ")"]
+  expect(actual).toEqual(expected)
+})
