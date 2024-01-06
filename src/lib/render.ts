@@ -1,45 +1,51 @@
-import { Align, Concat, Document, NL, Nest, Text } from "./doc";
-import { Layout } from "./layout";
+import { Align, Concat, Document, Flatten, NL, Nest, Text } from "./doc"
+import { Layout } from "./layout"
 
-export const render = (doc: Document, col: number, indent: number): Layout => {
+export type PrintCtx = {
+  col: number
+  indent: number
+  flatten: boolean
+}
+
+export const render = (doc: Document, ctx: PrintCtx): Layout => {
   switch (doc._tag) {
     case "text":
-      return renderText(doc);
+      return renderText(doc)
     case "new-line":
-      return renderNL(doc, indent);
+      return renderNL(doc, ctx)
     case "concat":
-      return renderConcat(doc, col, indent);
+      return renderConcat(doc, ctx)
     case "nest":
-      return renderNest(doc, col, indent);
+      return renderNest(doc, ctx)
     case "align":
-      return renderAlign(doc, col);
+      return renderAlign(doc, ctx)
     default:
-      throw Error("Unimplemented " + doc._tag);
+      throw Error("Unimplemented " + doc._tag)
   }
-};
+}
 
-const renderText = (doc: Text): Layout => [doc.s];
+const renderText = (doc: Text): Layout => [doc.s]
 
-const INDENT = "  ";
+const INDENT = "  "
 
 // TODO: flattening
-const renderNL = (_doc: NL, indent: number): Layout => [
-  "",
-  INDENT.repeat(indent),
-];
+const renderNL = (_doc: NL, ctx: PrintCtx): Layout => ["", INDENT.repeat(ctx.indent)]
 
-const renderConcat = (doc: Concat, col: number, indent: number): Layout => {
-  const la = render(doc.a, col, indent);
-  const lb = render(doc.b, col, indent);
+const renderConcat = (doc: Concat, ctx: PrintCtx): Layout => {
+  const la = render(doc.a, ctx)
+  const lb = render(doc.b, ctx)
   // TODO: see if this gets slow for big layouts, can maybe do with less copying
-  const pre = la.slice(0, la.length - 1);
-  const post = lb.slice(1);
-  const merged = la[la.length - 1] + lb[0];
-  return pre.concat(merged).concat(post);
-};
+  const pre = la.slice(0, la.length - 1)
+  const post = lb.slice(1)
+  const merged = la[la.length - 1] + lb[0]
+  return pre.concat(merged).concat(post)
+}
 
-export const renderNest = (doc: Nest, col: number, indent: number): Layout =>
-  render(doc.doc, col, indent + doc.n);
+export const renderNest = (doc: Nest, ctx: PrintCtx): Layout =>
+  render(doc.doc, { ...ctx, indent: ctx.indent + doc.n })
 
-export const renderAlign = (align: Align, col: number): Layout =>
-  render(align.d, col, col);
+export const renderAlign = (align: Align, ctx: PrintCtx): Layout =>
+  render(align.d, { ...ctx, indent: ctx.col })
+
+export const renderFlatten = (flatten: Flatten, ctx: PrintCtx): Layout =>
+  render(flatten.d, { ...ctx, flatten: true })

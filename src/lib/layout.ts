@@ -1,1 +1,1 @@
-export type Layout = string[];
+export type Layout = string[]
