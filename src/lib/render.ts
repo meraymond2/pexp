@@ -15,8 +15,8 @@ export const render = (doc: Document, ctx: PrintCtx): Layout => {
     case "new-line":
       return ["", ctx.indentStr.repeat(ctx.i)]
     case "concat": {
-      const la = render(doc.a, ctx)
-      const lb = render(doc.b, ctx)
+      const la = render(doc.da, ctx)
+      const lb = render(doc.db, ctx)
       // If this gets slow for big layouts, can probably do with less copying
       const pre = la.slice(0, la.length - 1)
       const post = lb.slice(1)
@@ -24,9 +24,9 @@ export const render = (doc: Document, ctx: PrintCtx): Layout => {
       return pre.concat(merged).concat(post)
     }
     case "nest":
-      return render(doc.nested, { ...ctx, i: ctx.i + doc.n })
+      return render(doc.d, { ...ctx, i: ctx.i + doc.n })
     case "align":
-      return render(doc.aligned, { ...ctx, i: ctx.c })
+      return render(doc.d, { ...ctx, i: ctx.c })
     case "union":
       throw Error("Unreachable: cannot render Union")
   }

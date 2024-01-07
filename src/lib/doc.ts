@@ -27,50 +27,50 @@ export type Nest = {
   _tag: "nest"
   id: number
   n: number
-  nested: Document
+  d: Document
 }
-export const Nest = (n: number, nested: Document): Nest => ({
+export const Nest = (n: number, d: Document): Nest => ({
   _tag: "nest",
   id: id++,
   n,
-  nested,
+  d,
 })
 
 export type Concat = {
   _tag: "concat"
   id: number
-  a: Document
-  b: Document
+  da: Document
+  db: Document
 }
-export const Concat = (a: Document, b: Document): Concat => ({
+export const Concat = (da: Document, db: Document): Concat => ({
   _tag: "concat",
   id: id++,
-  a,
-  b,
+  da: da,
+  db: db,
 })
 
 export type Align = {
   _tag: "align"
   id: number
-  aligned: Document
+  d: Document
 }
-export const Align = (aligned: Document): Align => ({
+export const Align = (d: Document): Align => ({
   _tag: "align",
   id: id++,
-  aligned,
+  d,
 })
 
 export type Union = {
   _tag: "union"
   id: number
-  a: Document
-  b: Document
+  da: Document
+  db: Document
 }
-export const Union = (a: Document, b: Document): Union => ({
+export const Union = (da: Document, db: Document): Union => ({
   _tag: "union",
   id: id++,
-  a,
-  b,
+  da,
+  db,
 })
 
 // TODO: according to the paper, this should be memoised, but I'm skipping that for now.
@@ -79,18 +79,18 @@ export const Flatten = (doc: Document): Document => {
     case "align":
       return {
         ...doc,
-        aligned: Flatten(doc.aligned),
+        d: Flatten(doc.d),
       }
     case "concat":
       return {
         ...doc,
-        a: Flatten(doc.a),
-        b: Flatten(doc.b),
+        da: Flatten(doc.da),
+        db: Flatten(doc.db),
       }
     case "nest":
       return {
         ...doc,
-        nested: Flatten(doc.nested),
+        d: Flatten(doc.d),
       }
     case "new-line":
       return Text(" ")
@@ -99,8 +99,8 @@ export const Flatten = (doc: Document): Document => {
     case "union":
       return {
         ...doc,
-        a: Flatten(doc.a),
-        b: Flatten(doc.b),
+        da: Flatten(doc.da),
+        db: Flatten(doc.db),
       }
   }
 }

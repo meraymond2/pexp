@@ -170,8 +170,8 @@ export const measureConcat = (
   indent: number,
   costFactory: CostFactory,
 ): Measure => {
-  const ma = measure(doc.a, col, indent, costFactory)
-  const mb = measure(doc.b, ma.lastLineLength, indent, costFactory)
+  const ma = measure(doc.da, col, indent, costFactory)
+  const mb = measure(doc.db, ma.lastLineLength, indent, costFactory)
   return {
     cost: costFactory.addCosts(ma.cost, mb.cost),
     document: doc,
@@ -185,7 +185,7 @@ export const measureNest = (
   indent: number,
   costFactory: CostFactory,
 ): Measure => {
-  const m = measure(doc.nested, col, indent + doc.n, costFactory)
+  const m = measure(doc.d, col, indent + doc.n, costFactory)
   return adjustNest(doc.n, m)
 }
 
@@ -195,6 +195,6 @@ export const measureAlign = (
   indent: number,
   costFactory: CostFactory,
 ): Measure => {
-  const m = measure(align.aligned, col, col, costFactory)
+  const m = measure(align.d, col, col, costFactory)
   return adjustAlign(indent, m)
 }

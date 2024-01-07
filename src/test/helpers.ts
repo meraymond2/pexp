@@ -17,12 +17,12 @@ export const W = 150
 export const stripIds = (doc: Document): Document => {
   switch (doc._tag) {
     case "align":
-      return { ...doc, aligned: stripIds(doc.aligned), id: -1 }
+      return { ...doc, d: stripIds(doc.d), id: -1 }
     case "concat":
     case "union":
-      return { ...doc, a: stripIds(doc.a), b: stripIds(doc.b), id: -1 }
+      return { ...doc, da: stripIds(doc.da), db: stripIds(doc.db), id: -1 }
     case "nest":
-      return { ...doc, nested: stripIds(doc.nested), id: -1 }
+      return { ...doc, d: stripIds(doc.d), id: -1 }
     case "new-line":
     case "text":
       return { ...doc, id: -1 }

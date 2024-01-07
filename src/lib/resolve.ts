@@ -76,17 +76,17 @@ const resolveConcat = (
   W: number,
   F: CostFactory,
 ): MeasureSet => {
-  const ra = resolve(d.a, c, i, W, F)
+  const ra = resolve(d.da, c, i, W, F)
   if (ra.tainted) {
     const ma = ra.measure()
-    const rb = resolve(d.b, ma.lastLineLength, i, W, F)
+    const rb = resolve(d.db, ma.lastLineLength, i, W, F)
     const rb2 = taint(rb)
     const mb = rb2.measure()
     return TaintedSet(() => merge(ma, mb))
   } else {
     const ss = ra.measures.map((man) => {
       // RSC(mn, docB, indent) =>
-      const rb = resolve(d.b, man.lastLineLength, i, W, F)
+      const rb = resolve(d.db, man.lastLineLength, i, W, F)
       if (rb.tainted) {
         const mb = rb.measure()
         return TaintedSet(() => merge(man, mb))
@@ -110,7 +110,7 @@ const resolveNest = (
   W: number,
   F: CostFactory,
 ): MeasureSet => {
-  const r1 = resolve(d.nested, c, i + d.n, W, F)
+  const r1 = resolve(d.d, c, i + d.n, W, F)
   return lift(r1, (m) => adjustNest(d.n, m))
 }
 
@@ -124,7 +124,7 @@ const resolveAlign = (
   if (i > W) {
     return lift(taint(resolve(d, c, c, W, F)), (m) => adjustAlign(i, m))
   }
-  const S = resolve(d.aligned, c, c, W, F)
+  const S = resolve(d.d, c, c, W, F)
   return lift(S, (m) => adjustAlign(i, m))
 }
 
@@ -135,7 +135,7 @@ const resolveUnion = (
   W: number,
   F: CostFactory,
 ): MeasureSet => {
-  const Sa = resolve(d.a, c, i, W, F)
-  const Sb = resolve(d.b, c, i, W, F)
+  const Sa = resolve(d.da, c, i, W, F)
+  const Sb = resolve(d.db, c, i, W, F)
   return unionMeasureSet(Sa, Sb, F)
 }
