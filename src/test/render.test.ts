@@ -1,6 +1,5 @@
 import { Concat, Flatten, NL, Nest, Text } from "../lib/doc"
-import { Layout } from "../lib/layout"
-import { render } from "../lib/render"
+import { Layout, render } from "../lib/render"
 
 const initialCtx = {
   col: 0,

@@ -1,19 +1,8 @@
-import { writeFileSync } from "fs"
-import { CostFactory } from "../../lib/measure"
 import { pprint } from "../../lib/printer"
 import { layout } from "./layout"
 import { lex } from "./lex"
 import { parse } from "./parse"
-
-const mkCostFactory = (margin: number, nlCost: number = 3): CostFactory => ({
-  textFn: (col, len) => {
-    const endPos = col + len
-    if (endPos < margin) return 0
-    return endPos - margin
-  },
-  nlCost,
-  addCosts: (a, b) => a + b,
-})
+import { costFactory } from "../helpers"
 
 describe("printing JSON objects", () => {
   const jsStr = JSON.stringify({
@@ -40,7 +29,7 @@ describe("printing JSON objects", () => {
   const doc = layout(parsed)
 
   test("at margin 80", () => {
-    const F = mkCostFactory(80)
+    const F = costFactory()
     const actual = pprint(doc, F, 200).join("\n")
     const expected = `
 {
@@ -68,7 +57,7 @@ describe("printing JSON objects", () => {
   })
 
   test("at margin 40", () => {
-    const F = mkCostFactory(40)
+    const F = costFactory(40)
     const actual = pprint(doc, F, 200).join("\n")
     const expected = `
 {
@@ -104,13 +93,13 @@ describe("printing JSON arrays", () => {
   const doc = layout(parse(lex(jsStr)))
 
   test("at margin = 40", () => {
-    const F = mkCostFactory(40)
+    const F = costFactory(40)
     const actual = pprint(doc, F, 200).join("\n")
     const expected = `[ 1, 2, 3, 4, 5 ]`
     expect(actual).toEqual(expected)
   })
   test("at margin = 4", () => {
-    const F = mkCostFactory(4, 1)
+    const F = costFactory(4, 1)
     const actual = pprint(doc, F, 200).join("\n")
     const expected = `
 [
@@ -154,7 +143,7 @@ describe("wrapping JSON arrays", () => {
   const doc = layout(parse(lex(jsStr)))
 
   test.skip("at margin = 40", () => {
-    const F = mkCostFactory(40)
+    const F = costFactory(40)
     const actual = pprint(doc, F, 200).join("\n")
     const expected = `
 [

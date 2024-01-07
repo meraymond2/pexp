@@ -1,5 +1,6 @@
 import { Document } from "./doc"
-import { Layout } from "./layout"
+
+export type Layout = string[]
 
 export type PrintCtx = {
   col: number

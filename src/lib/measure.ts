@@ -1,16 +1,17 @@
 import { Align, Concat, Document, NL, Nest, Text } from "./doc"
 
 /**
- * The printer is agnostic as to the type of Cost, but for now, for
+ * The printer is agnostic as to the type of Cost, but for the sake of
  * simplicity, I am hard-coding it to a number just so I don't have
  * to parameterise a load of types.
  */
-export type Cost = number
+type Cost = number
 
 export type CostFactory = {
   textFn: (col: number, len: number) => Cost
   nlCost: Cost
   addCosts: (a: Cost, b: Cost) => Cost
+  lessOrEqualCost: (a: Cost, b: Cost) => boolean
 }
 
 export type Measure = {
@@ -18,11 +19,6 @@ export type Measure = {
   document: Document
   lastLineLength: number
 }
-// export const Measure = (d: Document, c: Cost, l: number): Measure => ({
-//   cost: c,
-//   document: d,
-//   lastLineLength: l,
-// })
 
 export type MeasureSet = ValidMeasureSet | TaintedMeasureSet
 
@@ -53,19 +49,19 @@ export const TaintedSet = (m: () => Measure): TaintedMeasureSet => ({
   tainted: true,
 })
 
-const dominates = (a: Measure, b: Measure): boolean =>
-  a.lastLineLength <= b.lastLineLength && a.cost <= b.cost
+const dominates = (a: Measure, b: Measure, F: CostFactory): boolean =>
+  a.lastLineLength <= b.lastLineLength && F.lessOrEqualCost(a.cost, b.cost)
 
 /**
  * Takes a sorted array of Measures, and removes duplicates and dominated items.
  */
-export const dedup = (ms: Measure[]): Measure[] => {
+export const dedup = (ms: Measure[], F: CostFactory): Measure[] => {
   if (ms.length === 1) return ms
 
   const m = ms[0]
   const mprime = ms[1]
-  const head = dominates(mprime, m) ? [] : [m]
-  const tail = dedup(ms.slice(1))
+  const head = dominates(mprime, m, F) ? [] : [m]
+  const tail = dedup(ms.slice(1), F)
   return head.concat(tail)
 }
 
@@ -99,27 +95,29 @@ export const lift = (ms: MeasureSet, f: (m: Measure) => Measure): MeasureSet => 
   }
 }
 
-export const unionMeasureSet = (a: MeasureSet, b: MeasureSet): MeasureSet => {
+export const unionMeasureSet = (a: MeasureSet, b: MeasureSet, F: CostFactory): MeasureSet => {
   if (b.tainted) return a
   // Not sure about this one, as the notation is different from the case above.
   if (a.tainted) return b
   return {
-    measures: mergeSortMeasures(a.measures, b.measures),
+    measures: mergeSortMeasures(a.measures, b.measures, F),
     tainted: false,
   }
 }
 
-const mergeSortMeasures = (as: Measure[], bs: Measure[]): Measure[] => {
+const mergeSortMeasures = (as: Measure[], bs: Measure[], F: CostFactory): Measure[] => {
+  const recur = (as2: Measure[], bs2: Measure[]) => mergeSortMeasures(as2, bs2, F)
+
   if (as.length === 0) return bs
   else if (bs.length === 0) return as
-  else if (dominates(as[0], bs[0])) {
-    return mergeSortMeasures(as, bs.slice(1))
-  } else if (dominates(bs[0], as[0])) {
-    return mergeSortMeasures(as.slice(1), bs)
+  else if (dominates(as[0], bs[0], F)) {
+    return recur(as, bs.slice(1))
+  } else if (dominates(bs[0], as[0], F)) {
+    return recur(as.slice(1), bs)
   } else if (as[0].lastLineLength > bs[0].lastLineLength) {
-    return as.slice(0, 1).concat(mergeSortMeasures(as.slice(1), bs))
+    return as.slice(0, 1).concat(recur(as.slice(1), bs))
   } else {
-    return bs.slice(0, 1).concat(mergeSortMeasures(as, bs.slice(1)))
+    return bs.slice(0, 1).concat(recur(as, bs.slice(1)))
   }
 }
 

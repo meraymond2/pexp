@@ -3,36 +3,27 @@ import {
   CostFactory,
   Measure,
   MeasureSet,
-  adjustNest,
   lift,
   measureConcat,
   measureNL,
   measureText,
 } from "../lib/measure"
+import { costFactory } from "./helpers"
 
-const costFactory: CostFactory = {
-  textFn: (col, len) => {
-    const margin = 80
-    const endPos = col + len
-    if (endPos < margin) return 0
-    return endPos - margin
-  },
-  nlCost: 3,
-  addCosts: (a, b) => a + b,
-}
+const F = costFactory()
 
 describe("measure", () => {
   it("calculates the measure of Text", () => {
     const s = "cascat"
     const doc = Text(s)
-    const at0: Measure = measureText(doc, 0, costFactory)
+    const at0: Measure = measureText(doc, 0, F)
     expect(at0).toEqual({
       document: doc,
       cost: 0,
       lastLineLength: 6,
     })
 
-    const at20: Measure = measureText(doc, 20, costFactory)
+    const at20: Measure = measureText(doc, 20, F)
     expect(at20).toEqual({
       document: doc,
       cost: 0,
@@ -44,14 +35,14 @@ describe("measure", () => {
 describe("newline", () => {
   it("calculates the measure of NL", () => {
     const doc = NL
-    const at0: Measure = measureNL(doc, 0, costFactory)
+    const at0: Measure = measureNL(doc, 0, F)
     expect(at0).toEqual({
       document: doc,
       cost: 3,
       lastLineLength: 0,
     })
 
-    const at20: Measure = measureNL(doc, 20, costFactory)
+    const at20: Measure = measureNL(doc, 20, F)
     expect(at20).toEqual({
       document: doc,
       cost: 3,
@@ -63,7 +54,7 @@ describe("newline", () => {
 describe("concat", () => {
   it("calculates the measure of Cocnat", () => {
     const doc = Concat(Text("cas"), Text("cas"))
-    const at0 = measureConcat(doc, 0, 0, costFactory)
+    const at0 = measureConcat(doc, 0, 0, F)
     expect(at0).toEqual({
       document: doc,
       cost: 0,

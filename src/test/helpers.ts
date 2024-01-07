@@ -1,16 +1,16 @@
 import { Document } from "../lib/doc"
 import { CostFactory, MeasureSet, ValidMeasureSet } from "../lib/measure"
 
-export const costFactory: CostFactory = {
+export const costFactory = (margin: number = 80, nlCost: number = 3): CostFactory => ({
   textFn: (col, len) => {
-    const margin = 80
     const endPos = col + len
     if (endPos < margin) return 0
     return endPos - margin
   },
-  nlCost: 3,
+  nlCost,
   addCosts: (a, b) => a + b,
-}
+  lessOrEqualCost: (a, b) => a <= b,
+})
 
 export const W = 150
 

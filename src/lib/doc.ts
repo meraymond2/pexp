@@ -1,6 +1,6 @@
-export type ChoicelessDocument = Text | NL | Concat | Align | Nest
-export type Document = ChoicelessDocument | Union
+export type Document = Text | NL | Concat | Align | Nest | Union
 
+// Id is mainly for debugging for now.
 let id = 0
 
 export type Text = {
@@ -73,9 +73,8 @@ export const Union = (a: Document, b: Document): Union => ({
   b,
 })
 
-// TODO: this is supposed to be memoised, but a naive cache is likely to be
-// slower than none, so I'm skipping until I have a benchmark that can
-// demonstrate memoisation that's faster.
+// TODO: according to the paper, this should be memoised, but I'm skipping that
+// for now.
 export const Flatten = (doc: Document): Document => {
   switch (doc._tag) {
     case "align":

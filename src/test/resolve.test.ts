@@ -4,11 +4,13 @@ import { render } from "../lib/render"
 import { resolve } from "../lib/resolve"
 import { W, assertValid, costFactory, stripIds, stripIdsMSet } from "./helpers"
 
+const F = costFactory()
+
 describe("resolve Text", () => {
   const s = "cascat"
   const doc = Text(s)
   test("resolve Text at 0", () => {
-    const at0 = resolve(doc, 0, 0, W, costFactory)
+    const at0 = resolve(doc, 0, 0, W, F)
     expect(at0).toEqual({
       measures: [
         {
@@ -22,7 +24,7 @@ describe("resolve Text", () => {
   })
 
   test("resolve Text at 78", () => {
-    const at78 = resolve(doc, 78, 0, W, costFactory)
+    const at78 = resolve(doc, 78, 0, W, F)
     expect(at78).toEqual({
       measures: [
         {
@@ -41,7 +43,7 @@ describe("resolve Text", () => {
     // in an actual case, to get column to 100, I'd need a Concat with a left
     // hand side of 100, and if I had that, the cost of the Left would be 20,
     // so I'd want to cost of the entire concat to only be 26.
-    const actual = resolve(doc, 100, 0, W, costFactory)
+    const actual = resolve(doc, 100, 0, W, F)
     expect(actual).toEqual({
       measures: [
         {
@@ -58,7 +60,7 @@ describe("resolve Text", () => {
     // See above
     const spacer = Text("-".repeat(100))
     const concat = Concat(spacer, doc)
-    const actual = resolve(concat, 0, 0, W, costFactory)
+    const actual = resolve(concat, 0, 0, W, F)
     const expected: MeasureSet = {
       tainted: false,
       measures: [
@@ -73,7 +75,7 @@ describe("resolve Text", () => {
   })
 
   test("resolve Text at 200", () => {
-    const at200 = resolve(doc, 200, 0, W, costFactory)
+    const at200 = resolve(doc, 200, 0, W, F)
     expect(at200.tainted).toBe(true)
     if (at200.tainted) {
       expect(at200.measure()).toEqual({
@@ -88,7 +90,7 @@ describe("resolve Text", () => {
 describe("resolve NL", () => {
   const doc = NL
   test("resolve NL at 0", () => {
-    const at0 = resolve(doc, 0, 0, W, costFactory)
+    const at0 = resolve(doc, 0, 0, W, F)
     expect(at0).toEqual({
       measures: [
         {
@@ -101,7 +103,7 @@ describe("resolve NL", () => {
     })
   })
   test("resolve NL at 78", () => {
-    const at78 = resolve(doc, 78, 0, W, costFactory)
+    const at78 = resolve(doc, 78, 0, W, F)
     expect(at78).toEqual({
       measures: [
         {
@@ -114,7 +116,7 @@ describe("resolve NL", () => {
     })
   })
   test("resolve NL at col 78 with indent", () => {
-    const at78WithIndent = resolve(doc, 78, 4, W, costFactory)
+    const at78WithIndent = resolve(doc, 78, 4, W, F)
     expect(at78WithIndent).toEqual({
       measures: [
         {
@@ -128,7 +130,7 @@ describe("resolve NL", () => {
   })
 
   test("resolve NL at col 200 past W", () => {
-    const at200 = resolve(doc, 200, 0, W, costFactory)
+    const at200 = resolve(doc, 200, 0, W, F)
     expect(at200.tainted).toBe(true)
     if (at200.tainted) {
       expect(at200.measure()).toEqual({
@@ -140,7 +142,7 @@ describe("resolve NL", () => {
   })
 
   test("resolve NL past W at col 0 with 200 indent", () => {
-    const at200Indent = resolve(doc, 0, 200, W, costFactory)
+    const at200Indent = resolve(doc, 0, 200, W, F)
     expect(at200Indent.tainted).toBe(true)
     if (at200Indent.tainted) {
       expect(at200Indent.measure()).toEqual({
@@ -155,7 +157,7 @@ describe("resolve NL", () => {
 describe("resolve Concat", () => {
   test("resolve Concat(Text, Text)", () => {
     const doc = Concat(Text("cas"), Text("cat"))
-    const at0 = assertValid(resolve(doc, 0, 0, W, costFactory))
+    const at0 = assertValid(resolve(doc, 0, 0, W, F))
     const actualId = at0.measures[0].document.id
     expect(at0).toEqual({
       measures: [
@@ -175,12 +177,7 @@ describe("resolve Concat", () => {
     const s3 = "9876543210"
     const doc = Concat(Text(s1), Concat(Text(s2), Text(s3)))
     // const doc = Concat(Concat(Text(s1), Text(s2)), Text(s3))
-    const F: CostFactory = {
-      // 1 cost for every char over margin 10
-      textFn: (col, len) => Math.max(col + len - 10, 0),
-      nlCost: 1,
-      addCosts: (a, b) => a + b,
-    }
+    const F = costFactory(10, 1)
     const actual = resolve(doc, 0, 0, 150, F)
     const expected: MeasureSet = {
       tainted: false,
@@ -199,7 +196,7 @@ describe("resolve Concat", () => {
 describe("resolve Nest", () => {
   test("resolve Nest(Text) at col 0", () => {
     const doc = Nest(1, Text("lunabee"))
-    const actual = resolve(doc, 0, 0, W, costFactory)
+    const actual = resolve(doc, 0, 0, W, F)
     const expected: MeasureSet = {
       measures: [
         {
@@ -217,7 +214,7 @@ describe("resolve Nest", () => {
 describe("resolve Align", () => {
   test("resolve Align(Text) at col 0", () => {
     const doc = Align(Text("lunabee"))
-    const actual = resolve(doc, 0, 4, W, costFactory)
+    const actual = resolve(doc, 0, 4, W, F)
     const expected: MeasureSet = {
       measures: [
         {
@@ -243,11 +240,7 @@ describe("Example 3.1", () => {
   const grouped = Union(doc, Flatten(doc))
 
   test("pprint with margin at 6", () => {
-    const F: CostFactory = {
-      textFn: (col, len) => Math.max(col + len - 6, 0),
-      nlCost: 1,
-      addCosts: (a, b) => a + b,
-    }
+    const F = costFactory(6, 1)
     const W = 150
     const res = resolve(grouped, 3, 0, W, F)
     if (!res.tainted) {
@@ -258,11 +251,7 @@ describe("Example 3.1", () => {
   })
 
   test("pprint with margin at 14", () => {
-    const F: CostFactory = {
-      textFn: (col, len) => Math.max(col + len - 14, 0),
-      nlCost: 1,
-      addCosts: (a, b) => a + b,
-    }
+    const F = costFactory(14, 1)
     const W = 150
     const res = resolve(grouped, 3, 0, W, F)
     if (!res.tainted) {

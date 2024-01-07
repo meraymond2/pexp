@@ -1,7 +1,6 @@
 import { Document } from "./doc"
-import { Layout } from "./layout"
 import { CostFactory } from "./measure"
-import { render } from "./render"
+import { render, Layout } from "./render"
 import { resolve } from "./resolve"
 
 /**

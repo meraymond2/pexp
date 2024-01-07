@@ -91,10 +91,15 @@ const resolveConcat = (
         const mb = rb.measure()
         return TaintedSet(() => merge(man, mb))
       } else {
-        return ValidSet(dedup(rb.measures.map((mbn) => merge(man, mbn))))
+        return ValidSet(
+          dedup(
+            rb.measures.map((mbn) => merge(man, mbn)),
+            cf,
+          ),
+        )
       }
     })
-    return ss.reduce((acc, s) => unionMeasureSet(acc, s))
+    return ss.reduce((acc, s) => unionMeasureSet(acc, s, cf))
   }
 }
 
@@ -132,5 +137,5 @@ const resolveUnion = (
 ): MeasureSet => {
   const Sa = resolve(union.a, col, indent, W, F)
   const Sb = resolve(union.b, col, indent, W, F)
-  return unionMeasureSet(Sa, Sb)
+  return unionMeasureSet(Sa, Sb, F)
 }
