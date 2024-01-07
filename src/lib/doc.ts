@@ -73,8 +73,7 @@ export const Union = (a: Document, b: Document): Union => ({
   b,
 })
 
-// TODO: according to the paper, this should be memoised, but I'm skipping that
-// for now.
+// TODO: according to the paper, this should be memoised, but I'm skipping that for now.
 export const Flatten = (doc: Document): Document => {
   switch (doc._tag) {
     case "align":

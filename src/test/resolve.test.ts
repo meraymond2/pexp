@@ -244,7 +244,7 @@ describe("Example 3.1", () => {
     const W = 150
     const res = resolve(grouped, 3, 0, W, F)
     if (!res.tainted) {
-      const layout = render(res.measures[0].document, { col: 3, indent: 0, flatten: false })
+      const layout = render(res.measures[0].document, { c: 3, i: 0, indentStr: "  " })
       const expected = ["= func(", "  pretty,", "  print", ")"]
       expect(layout).toEqual(expected)
     }
@@ -255,7 +255,7 @@ describe("Example 3.1", () => {
     const W = 150
     const res = resolve(grouped, 3, 0, W, F)
     if (!res.tainted) {
-      const layout = render(res.measures[0].document, { col: 3, indent: 0, flatten: false })
+      const layout = render(res.measures[0].document, { c: 3, i: 0, indentStr: "  " })
       const expected = ["= func(", "  pretty,", "  print", ")"]
       expect(layout).toEqual(expected)
     }

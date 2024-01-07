@@ -2,9 +2,9 @@ import { Concat, Flatten, NL, Nest, Text } from "../lib/doc"
 import { Layout, render } from "../lib/render"
 
 const initialCtx = {
-  col: 0,
-  indent: 0,
-  flatten: false,
+  c: 0,
+  i: 0,
+  indentStr: "  ",
 }
 
 describe("render Text", () => {
@@ -24,13 +24,6 @@ describe("render NL", () => {
     const expected: Layout = ["", ""]
     expect(actual).toEqual(expected)
   })
-
-  test("render NL, flatten = true", () => {
-    const doc = NL
-    const actual: Layout = render(doc, { col: 0, indent: 0, flatten: true })
-    const expected: Layout = [" "]
-    expect(actual).toEqual(expected)
-  })
 })
 
 describe("render Concat", () => {
@@ -41,17 +34,10 @@ describe("render Concat", () => {
     expect(actual).toEqual(expected)
   })
 
-  test("render Concat(Concat(Text, NL), Text), flatten = false", () => {
+  test("render Concat(Concat(Text, NL), Text)", () => {
     const doc = Concat(Concat(Text("cas"), NL), Text("cat"))
     const actual: Layout = render(doc, initialCtx)
     const expected: Layout = ["cas", "cat"]
-    expect(actual).toEqual(expected)
-  })
-
-  test("render Concat(Concat(Text, NL), Text), flatten = true", () => {
-    const doc = Concat(Concat(Text("cas"), NL), Text("cat"))
-    const actual: Layout = render(doc, { col: 0, indent: 0, flatten: true })
-    const expected: Layout = ["cas cat"]
     expect(actual).toEqual(expected)
   })
 })
@@ -91,7 +77,7 @@ describe("render Example 3.1", () => {
       Concat(NL, Text(")")),
     ),
   )
-  const actual = render(doc, { col: 3, indent: 0, flatten: false })
+  const actual = render(doc, { c: 3, i: 0, indentStr: "  " })
   const expected = ["= func(", "  pretty,", "  print", ")"]
   expect(actual).toEqual(expected)
 })

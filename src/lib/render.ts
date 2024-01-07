@@ -3,35 +3,31 @@ import { Document } from "./doc"
 export type Layout = string[]
 
 export type PrintCtx = {
-  col: number
-  indent: number
-  flatten: boolean
+  c: number
+  i: number
+  indentStr: string
 }
-
-// Could be added to the PrintCtx to be made configurable
-const INDENT = "  "
 
 export const render = (doc: Document, ctx: PrintCtx): Layout => {
   switch (doc._tag) {
     case "text":
       return [doc.s]
     case "new-line":
-      return ctx.flatten ? [" "] : ["", INDENT.repeat(ctx.indent)]
+      return ["", ctx.indentStr.repeat(ctx.i)]
     case "concat": {
       const la = render(doc.a, ctx)
       const lb = render(doc.b, ctx)
-      // TODO: see if this gets slow for big layouts, can maybe do with less copying
+      // If this gets slow for big layouts, can probably do with less copying
       const pre = la.slice(0, la.length - 1)
       const post = lb.slice(1)
       const merged = la[la.length - 1] + lb[0]
       return pre.concat(merged).concat(post)
     }
     case "nest":
-      return render(doc.doc, { ...ctx, indent: ctx.indent + doc.n })
+      return render(doc.doc, { ...ctx, i: ctx.i + doc.n })
     case "align":
-      return render(doc.d, { ...ctx, indent: ctx.col })
+      return render(doc.d, { ...ctx, i: ctx.c })
     case "union":
-      // TODO: can I make render only accept choiceless docs?
       throw Error("Unreachable: cannot render Union")
   }
 }
