@@ -27,13 +27,13 @@ export type Nest = {
   _tag: "nest"
   id: number
   n: number
-  doc: Document
+  nested: Document
 }
-export const Nest = (n: number, doc: Document): Nest => ({
+export const Nest = (n: number, nested: Document): Nest => ({
   _tag: "nest",
   id: id++,
   n,
-  doc,
+  nested,
 })
 
 export type Concat = {
@@ -52,12 +52,12 @@ export const Concat = (a: Document, b: Document): Concat => ({
 export type Align = {
   _tag: "align"
   id: number
-  d: Document
+  aligned: Document
 }
-export const Align = (d: Document): Align => ({
+export const Align = (aligned: Document): Align => ({
   _tag: "align",
   id: id++,
-  d,
+  aligned,
 })
 
 export type Union = {
@@ -79,7 +79,7 @@ export const Flatten = (doc: Document): Document => {
     case "align":
       return {
         ...doc,
-        d: Flatten(doc.d),
+        aligned: Flatten(doc.aligned),
       }
     case "concat":
       return {
@@ -90,7 +90,7 @@ export const Flatten = (doc: Document): Document => {
     case "nest":
       return {
         ...doc,
-        doc: Flatten(doc.doc),
+        nested: Flatten(doc.nested),
       }
     case "new-line":
       return Text(" ")

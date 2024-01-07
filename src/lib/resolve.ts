@@ -16,77 +16,77 @@ import {
 } from "./measure"
 
 export const resolve = (
-  doc: Document,
-  col: number,
-  indent: number,
-  w: number,
-  cf: CostFactory,
+  d: Document,
+  c: number,
+  i: number,
+  W: number,
+  F: CostFactory,
 ): MeasureSet => {
-  switch (doc._tag) {
+  switch (d._tag) {
     case "text":
-      return resolveText(doc, col, indent, w, cf)
+      return resolveText(d, c, i, W, F)
     case "new-line":
-      return resolveNL(doc, col, indent, w, cf)
+      return resolveNL(d, c, i, W, F)
     case "concat":
-      return resolveConcat(doc, col, indent, w, cf)
+      return resolveConcat(d, c, i, W, F)
     case "nest":
-      return resolveNest(doc, col, indent, w, cf)
+      return resolveNest(d, c, i, W, F)
     case "align":
-      return resolveAlign(doc, col, indent, w, cf)
+      return resolveAlign(d, c, i, W, F)
     case "union":
-      return resolveUnion(doc, col, indent, w, cf)
+      return resolveUnion(d, c, i, W, F)
   }
 }
 
 const resolveText = (
-  doc: Text,
-  col: number,
-  indent: number,
-  w: number,
-  cf: CostFactory,
+  d: Text,
+  c: number,
+  i: number,
+  W: number,
+  F: CostFactory,
 ): MeasureSet => {
-  const len = doc.s.length
+  const len = d.s.length
   // If placing the text would exceed W (cost + length) or if the indent
   // is greater than W, the result is a Tainted Set.
-  if (col + len > w || indent > w) {
-    return TaintedSet(() => measureText(doc, col, cf))
+  if (c + len > W || i > W) {
+    return TaintedSet(() => measureText(d, c, F))
   } else {
-    return ValidSet([measureText(doc, col, cf)])
+    return ValidSet([measureText(d, c, F)])
   }
 }
 
 const resolveNL = (
-  doc: NL,
-  col: number,
-  indent: number,
-  w: number,
-  cf: CostFactory,
+  d: NL,
+  c: number,
+  i: number,
+  W: number,
+  F: CostFactory,
 ): MeasureSet => {
-  if (col > w || indent > w) {
-    return TaintedSet(() => measureNL(doc, indent, cf))
+  if (c > W || i > W) {
+    return TaintedSet(() => measureNL(d, i, F))
   } else {
-    return ValidSet([measureNL(doc, indent, cf)])
+    return ValidSet([measureNL(d, i, F)])
   }
 }
 
 const resolveConcat = (
-  doc: Concat,
-  col: number,
-  indent: number,
-  w: number,
-  cf: CostFactory,
+  d: Concat,
+  c: number,
+  i: number,
+  W: number,
+  F: CostFactory,
 ): MeasureSet => {
-  const ra = resolve(doc.a, col, indent, w, cf)
+  const ra = resolve(d.a, c, i, W, F)
   if (ra.tainted) {
     const ma = ra.measure()
-    const rb = resolve(doc.b, ma.lastLineLength, indent, w, cf)
+    const rb = resolve(d.b, ma.lastLineLength, i, W, F)
     const rb2 = taint(rb)
     const mb = rb2.measure()
     return TaintedSet(() => merge(ma, mb))
   } else {
     const ss = ra.measures.map((man) => {
       // RSC(mn, docB, indent) =>
-      const rb = resolve(doc.b, man.lastLineLength, indent, w, cf)
+      const rb = resolve(d.b, man.lastLineLength, i, W, F)
       if (rb.tainted) {
         const mb = rb.measure()
         return TaintedSet(() => merge(man, mb))
@@ -94,48 +94,48 @@ const resolveConcat = (
         return ValidSet(
           dedup(
             rb.measures.map((mbn) => merge(man, mbn)),
-            cf,
+            F,
           ),
         )
       }
     })
-    return ss.reduce((acc, s) => unionMeasureSet(acc, s, cf))
+    return ss.reduce((acc, s) => unionMeasureSet(acc, s, F))
   }
 }
 
 const resolveNest = (
-  doc: Nest,
-  col: number,
-  indent: number,
-  W: number,
-  cf: CostFactory,
-): MeasureSet => {
-  const r1 = resolve(doc.doc, col, indent + doc.n, W, cf)
-  return lift(r1, (m) => adjustNest(doc.n, m))
-}
-
-const resolveAlign = (
-  align: Align,
-  col: number,
-  indent: number,
-  W: number,
-  cf: CostFactory,
-): MeasureSet => {
-  if (indent > W) {
-    return lift(taint(resolve(align, col, col, W, cf)), (m) => adjustAlign(indent, m))
-  }
-  const S = resolve(align.d, col, col, W, cf)
-  return lift(S, (m) => adjustAlign(indent, m))
-}
-
-const resolveUnion = (
-  union: Union,
-  col: number,
-  indent: number,
+  d: Nest,
+  c: number,
+  i: number,
   W: number,
   F: CostFactory,
 ): MeasureSet => {
-  const Sa = resolve(union.a, col, indent, W, F)
-  const Sb = resolve(union.b, col, indent, W, F)
+  const r1 = resolve(d.nested, c, i + d.n, W, F)
+  return lift(r1, (m) => adjustNest(d.n, m))
+}
+
+const resolveAlign = (
+  d: Align,
+  c: number,
+  i: number,
+  W: number,
+  F: CostFactory,
+): MeasureSet => {
+  if (i > W) {
+    return lift(taint(resolve(d, c, c, W, F)), (m) => adjustAlign(i, m))
+  }
+  const S = resolve(d.aligned, c, c, W, F)
+  return lift(S, (m) => adjustAlign(i, m))
+}
+
+const resolveUnion = (
+  d: Union,
+  c: number,
+  i: number,
+  W: number,
+  F: CostFactory,
+): MeasureSet => {
+  const Sa = resolve(d.a, c, i, W, F)
+  const Sb = resolve(d.b, c, i, W, F)
   return unionMeasureSet(Sa, Sb, F)
 }

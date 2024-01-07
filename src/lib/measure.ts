@@ -185,7 +185,7 @@ export const measureNest = (
   indent: number,
   costFactory: CostFactory,
 ): Measure => {
-  const m = measure(doc.doc, col, indent + doc.n, costFactory)
+  const m = measure(doc.nested, col, indent + doc.n, costFactory)
   return adjustNest(doc.n, m)
 }
 
@@ -195,6 +195,6 @@ export const measureAlign = (
   indent: number,
   costFactory: CostFactory,
 ): Measure => {
-  const m = measure(align.d, col, col, costFactory)
+  const m = measure(align.aligned, col, col, costFactory)
   return adjustAlign(indent, m)
 }

@@ -24,9 +24,9 @@ export const render = (doc: Document, ctx: PrintCtx): Layout => {
       return pre.concat(merged).concat(post)
     }
     case "nest":
-      return render(doc.doc, { ...ctx, i: ctx.i + doc.n })
+      return render(doc.nested, { ...ctx, i: ctx.i + doc.n })
     case "align":
-      return render(doc.d, { ...ctx, i: ctx.c })
+      return render(doc.aligned, { ...ctx, i: ctx.c })
     case "union":
       throw Error("Unreachable: cannot render Union")
   }
