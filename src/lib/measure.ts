@@ -35,9 +35,7 @@ export type TaintedMeasureSet = {
 /**
  * Construct a MeasureSet from an array of Measures. The ctor doesn't need to
  * enforce sorting, because it's only called on single Measures, or on already
- * sorted Measure arrays.
- *
- * TODO: make this take a single Measure, and have dedup create its own MeasureSet.
+ * sorted and deduplicated Measure arrays.
  */
 export const ValidSet = (ms: Measure[]): ValidMeasureSet => ({
   measures: ms,
@@ -73,7 +71,8 @@ export const adjustNest = (n: number, m: Measure): Measure => ({
 
 /**
  * adjustAlign also affects Measures for which include maxX and maxY, which
- * I'm not for this, so it's only wrapping the doc in an align.
+ * aren't applicable to this implementation, so it's only wrapping the doc
+ * in an align.
  */
 export const adjustAlign = (_n: number, m: Measure): Measure => ({
   ...m,
@@ -148,7 +147,6 @@ const measure = (doc: Document, col: number, indent: number, costFactory: CostFa
     case "align":
       return measureAlign(doc, col, indent, costFactory)
     case "union":
-      // TODO: can I change the type only allow choiceless docs?
       throw Error("Unreachable: cannot measure Union")
   }
 }
