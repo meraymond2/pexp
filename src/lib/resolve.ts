@@ -64,18 +64,18 @@ const resolveConcat = (d: Concat, c: number, i: number, W: number, F: CostFactor
     const rb = resolve(d.db, ma.lastLineLength, i, W, F)
     const rb2 = taint(rb)
     const mb = rb2.measure()
-    return TaintedSet(() => merge(ma, mb))
+    return TaintedSet(() => merge(ma, mb, F))
   } else {
     const ss = ra.measures.map((man) => {
       // RSC(mn, docB, indent) =>
       const rb = resolve(d.db, man.lastLineLength, i, W, F)
       if (rb.tainted) {
         const mb = rb.measure()
-        return TaintedSet(() => merge(man, mb))
+        return TaintedSet(() => merge(man, mb, F))
       } else {
         return ValidSet(
           dedup(
-            rb.measures.map((mbn) => merge(man, mbn)),
+            rb.measures.map((mbn) => merge(man, mbn, F)),
             F,
           ),
         )

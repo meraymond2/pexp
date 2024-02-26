@@ -128,8 +128,8 @@ export const taint = (s: MeasureSet): TaintedMeasureSet =>
         tainted: true,
       }
 
-export const merge = (a: Measure, b: Measure): Measure => ({
-  cost: a.cost + b.cost,
+export const merge = (a: Measure, b: Measure, costFactory: CostFactory): Measure => ({
+  cost: costFactory.addCosts(a.cost, b.cost),
   document: Concat(a.document, b.document),
   lastLineLength: b.lastLineLength,
 })
@@ -153,7 +153,7 @@ const measure = (doc: Document, col: number, indent: number, costFactory: CostFa
 
 export const measureText = (doc: Text, col: number, costFactory: CostFactory): Measure => ({
   // TODO: check on this, the min is here to not double-count Concat costs.
-  cost: Math.min(costFactory.textFn(col, doc.s.length), doc.s.length),
+  cost: costFactory.textFn(col, doc.s.length),
   document: doc,
   lastLineLength: col + doc.s.length,
 })

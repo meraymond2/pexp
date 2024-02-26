@@ -1,5 +1,5 @@
 import { Align, Concat, Flatten, NL, Nest, Text, Union } from "../lib/doc"
-import { CostFactory, Measure, MeasureSet } from "../lib/measure"
+import { MeasureSet } from "../lib/measure"
 import { render } from "../lib/render"
 import { resolve } from "../lib/resolve"
 import { W, assertValid, costFactory, stripIds, stripIdsMSet } from "./helpers"
@@ -38,17 +38,12 @@ describe("resolve Text", () => {
   })
 
   test("resolve Text at 100", () => {
-    // TODO: Check on this, should the cost be 6 or 106? 6 looks wrong in this
-    // case, where I'm resolving at an arbitrarily inflated start position. But
-    // in an actual case, to get column to 100, I'd need a Concat with a left
-    // hand side of 100, and if I had that, the cost of the Left would be 20,
-    // so I'd want to cost of the entire concat to only be 26.
     const actual = resolve(doc, 100, 0, W, F)
     expect(actual).toEqual({
       measures: [
         {
           document: doc,
-          cost: 6,
+          cost: 26,
           lastLineLength: 106,
         },
       ],
@@ -57,7 +52,6 @@ describe("resolve Text", () => {
   })
 
   test("resolve Concat(Text, Text)", () => {
-    // See above
     const spacer = Text("-".repeat(100))
     const concat = Concat(spacer, doc)
     const actual = resolve(concat, 0, 0, W, F)
@@ -80,7 +74,7 @@ describe("resolve Text", () => {
     if (at200.tainted) {
       expect(at200.measure()).toEqual({
         document: doc,
-        cost: 6,
+        cost: 126,
         lastLineLength: 206,
       })
     }

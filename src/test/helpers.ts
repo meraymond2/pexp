@@ -8,7 +8,7 @@ export const costFactory = (margin: number = 80, nlCost: number = 3): CostFactor
     return endPos - margin
   },
   nlCost,
-  addCosts: (a, b) => a + b,
+  addCosts: (a, b) => Math.max(a, b),
   lessOrEqualCost: (a, b) => a <= b,
 })
 
