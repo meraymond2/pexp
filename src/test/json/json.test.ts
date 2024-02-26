@@ -142,6 +142,7 @@ describe("wrapping JSON arrays", () => {
   ])
   const doc = layout(parse(lex(jsStr)))
 
+  // TODO: it'd be nice to get wrapping to work for these.
   test.skip("at margin = 40", () => {
     const F = costFactory(40)
     const actual = pprint(doc, F, 200).join("\n")

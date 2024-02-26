@@ -38,13 +38,7 @@ export const resolve = (
   }
 }
 
-const resolveText = (
-  d: Text,
-  c: number,
-  i: number,
-  W: number,
-  F: CostFactory,
-): MeasureSet => {
+const resolveText = (d: Text, c: number, i: number, W: number, F: CostFactory): MeasureSet => {
   const len = d.s.length
   // If placing the text would exceed W (cost + length) or if the indent
   // is greater than W, the result is a Tainted Set.
@@ -55,13 +49,7 @@ const resolveText = (
   }
 }
 
-const resolveNL = (
-  d: NL,
-  c: number,
-  i: number,
-  W: number,
-  F: CostFactory,
-): MeasureSet => {
+const resolveNL = (d: NL, c: number, i: number, W: number, F: CostFactory): MeasureSet => {
   if (c > W || i > W) {
     return TaintedSet(() => measureNL(d, i, F))
   } else {
@@ -69,13 +57,7 @@ const resolveNL = (
   }
 }
 
-const resolveConcat = (
-  d: Concat,
-  c: number,
-  i: number,
-  W: number,
-  F: CostFactory,
-): MeasureSet => {
+const resolveConcat = (d: Concat, c: number, i: number, W: number, F: CostFactory): MeasureSet => {
   const ra = resolve(d.da, c, i, W, F)
   if (ra.tainted) {
     const ma = ra.measure()
@@ -103,24 +85,12 @@ const resolveConcat = (
   }
 }
 
-const resolveNest = (
-  d: Nest,
-  c: number,
-  i: number,
-  W: number,
-  F: CostFactory,
-): MeasureSet => {
+const resolveNest = (d: Nest, c: number, i: number, W: number, F: CostFactory): MeasureSet => {
   const r1 = resolve(d.d, c, i + d.n, W, F)
   return lift(r1, (m) => adjustNest(d.n, m))
 }
 
-const resolveAlign = (
-  d: Align,
-  c: number,
-  i: number,
-  W: number,
-  F: CostFactory,
-): MeasureSet => {
+const resolveAlign = (d: Align, c: number, i: number, W: number, F: CostFactory): MeasureSet => {
   if (i > W) {
     return lift(taint(resolve(d, c, c, W, F)), (m) => adjustAlign(i, m))
   }
@@ -128,13 +98,7 @@ const resolveAlign = (
   return lift(S, (m) => adjustAlign(i, m))
 }
 
-const resolveUnion = (
-  d: Union,
-  c: number,
-  i: number,
-  W: number,
-  F: CostFactory,
-): MeasureSet => {
+const resolveUnion = (d: Union, c: number, i: number, W: number, F: CostFactory): MeasureSet => {
   const Sa = resolve(d.da, c, i, W, F)
   const Sb = resolve(d.db, c, i, W, F)
   return unionMeasureSet(Sa, Sb, F)
